@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Vostok.ClusterConfig.Core.Parsers;
 using Vostok.ClusterConfig.Core.Parsers.Content;
 using Vostok.ClusterConfig.Core.Tests.Helpers;
+using Vostok.Commons.Testing;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 // ReSharper disable AssignNullToNotNullAttribute
