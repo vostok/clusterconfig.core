@@ -30,3 +30,4 @@ full-build > notests:
   deps:
     - vostok.configuration.sources
     - vostok.clusterconfig.client.abstractions
+    - vostok.commons.testing/src
