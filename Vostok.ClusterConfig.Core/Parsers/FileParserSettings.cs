@@ -18,7 +18,8 @@ namespace Vostok.ClusterConfig.Core.Parsers
             [".yml"] = WholeFileParser.Instance,
             [".yaml"] = WholeFileParser.Instance,
             [".toml"] = WholeFileParser.Instance,
-            [".bin"] = WholeFileParser.Instance
+            [".bin"] = WholeFileParser.Instance,
+            [".sql"] = WholeFileParser.Instance
         };
 
         public int MaximumFileSize { get; set; } = 1024 * 1024;
