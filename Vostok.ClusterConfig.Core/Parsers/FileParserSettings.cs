@@ -24,5 +24,17 @@ namespace Vostok.ClusterConfig.Core.Parsers
         };
 
         public int MaximumFileSize { get; set; } = 1024 * 1024;
+
+        public Dictionary<string, long> MaximumFileSizeZoneOverloads { get; set; } = new Dictionary<string, long>
+        {
+            ["default"] = 200 * 1024
+        };
+
+        public Dictionary<string, long> MaximumFileSizeFileNameOverloads { get; set; } = new Dictionary<string, long>
+        {
+            ["innBlackList"] = 500 * 1024,
+            ["__file_size_test_1K__"] = 1 * 1024,
+            ["__file_size_test_2K__"] = 2 * 1024
+        };
     }
 }
