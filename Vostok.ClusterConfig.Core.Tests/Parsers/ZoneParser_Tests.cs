@@ -15,6 +15,8 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
     [TestFixture]
     internal class ZoneParser_Tests
     {
+        private const string Zone = "test";
+        
         private TemporaryDirectory directory;
         private IFileParser fileParser;
         private Func<FileInfo, ISettingsNode> fileParserImpl;
@@ -27,7 +29,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
 
             fileParserImpl = info => new ObjectNode(info.Name);
             fileParser = Substitute.For<IFileParser>();
-            fileParser.Parse(Arg.Any<FileInfo>()).Returns(info => fileParserImpl(info.Arg<FileInfo>()));
+            fileParser.Parse(Arg.Any<FileInfo>(), Arg.Any<string>()).Returns(info => fileParserImpl(info.Arg<FileInfo>()));
 
             zoneParser = new ZoneParser(fileParser);
         }
@@ -35,7 +37,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
         [Test]
         public void Should_return_an_empty_node_with_null_name_for_empty_zone()
         {
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             tree.Should().BeOfType<ObjectNode>();
             tree.Name.Should().BeNull();
@@ -48,7 +50,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
             File.Create(Path.Combine(directory.Path, "foo.txt"));
             File.Create(Path.Combine(directory.Path, "foo-bar.txt"));
 
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             var children = tree.Children.ToArray();
 
@@ -62,7 +64,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
         {
             File.Create(Path.Combine(directory.Path, "foo.example"));
 
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             tree.Children.Should().BeEmpty();
         }
@@ -72,7 +74,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
         {
             File.Create(Path.Combine(directory.Path, ".ssh-config"));
 
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             tree.Children.Should().BeEmpty();
         }
@@ -85,7 +87,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
 
             fileParserImpl = _ => null;
 
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             tree.Children.Should().BeEmpty();
         }
@@ -99,7 +101,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
             File.Create(Path.Combine(directory.Path, "SubDir1", "foo.txt"));
             File.Create(Path.Combine(directory.Path, "SubDir2", "foo.txt"));
 
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             tree.Children.Should().HaveCount(2);
 
@@ -120,7 +122,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
             File.Create(Path.Combine(directory.Path, "SubDir1", "SubDir2", "foo.txt"));
             File.Create(Path.Combine(directory.Path, "SubDir3", "SubDir4", "foo.example"));
 
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             tree.Children.Should().HaveCount(1);
 
@@ -134,7 +136,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
 
             File.Create(Path.Combine(directory.Path, ".git", "index"));
 
-            var tree = zoneParser.Parse(directory.Info);
+            var tree = zoneParser.Parse(directory.Info, Zone);
 
             tree.Children.Should().BeEmpty();
         }

@@ -120,6 +120,6 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
             => File.WriteAllBytes(Path.Combine(directory.Path, file), new byte[size]);
 
         private ISettingsNode Parse()
-            => parser.Parse(new FileInfo(Path.Combine(directory.Path, file)));
+            => parser.Parse(new FileInfo(Path.Combine(directory.Path, file)), "test");
     }
 }

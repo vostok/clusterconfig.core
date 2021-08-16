@@ -7,6 +7,6 @@ namespace Vostok.ClusterConfig.Core.Parsers
     internal interface IZoneParser
     {
         [CanBeNull]
-        ObjectNode Parse([NotNull] DirectoryInfo directory);
+        ObjectNode Parse([NotNull] DirectoryInfo directory, string zone);
     }
 }
