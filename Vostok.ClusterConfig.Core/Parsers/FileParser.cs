@@ -15,8 +15,8 @@ namespace Vostok.ClusterConfig.Core.Parsers
             this.settings = settings;
             limiter = new FileSizeLimiter(
                 settings.MaximumFileSize,
-                settings.MaximumFileSizeZoneOverloads ?? new Dictionary<string, long>(),
-                settings.MaximumFileSizeFileNameOverloads ?? new Dictionary<string, long>());
+                settings.MaximumFileSizeZoneOverloads ?? new Dictionary<string, int>(),
+                settings.MaximumFileSizeFileNameOverloads ?? new Dictionary<string, int>());
         }
 
         public ObjectNode Parse(FileInfo file, string zone)

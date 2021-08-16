@@ -3,13 +3,13 @@ using System.IO;
 
 namespace Vostok.ClusterConfig.Core.Parsers
 {
-    public class FileSizeLimiter : IFileSizeLimiter
+    internal class FileSizeLimiter : IFileSizeLimiter
     {
         private readonly long maxFileSize;
-        private readonly Dictionary<string, long> zoneToMaxFileSizeOverloads;
-        private readonly Dictionary<string, long> fileNameToMaxFileSizeOverloads;
+        private readonly Dictionary<string, int> zoneToMaxFileSizeOverloads;
+        private readonly Dictionary<string, int> fileNameToMaxFileSizeOverloads;
 
-        public FileSizeLimiter(long maxFileSize, Dictionary<string, long> zoneToMaxFileSizeOverloads, Dictionary<string, long> fileNameToMaxFileSizeOverloads)
+        public FileSizeLimiter(long maxFileSize, Dictionary<string, int> zoneToMaxFileSizeOverloads, Dictionary<string, int> fileNameToMaxFileSizeOverloads)
         {
             this.maxFileSize = maxFileSize;
             this.zoneToMaxFileSizeOverloads = zoneToMaxFileSizeOverloads;
