@@ -22,9 +22,9 @@ namespace Vostok.ClusterConfig.Core.Parsers
             this.fileParser = fileParser;
         }
 
-        public ObjectNode Parse(DirectoryInfo directory)
+        public ObjectNode Parse(DirectoryInfo directory, string zone)
         {
-            return new ObjectNode(null, ParseDirectory(directory));
+            return new ObjectNode(null, ParseDirectory(directory, zone));
         }
 
         private static IEnumerable<FileInfo> GetFilesSafe(DirectoryInfo directory)
@@ -70,21 +70,21 @@ namespace Vostok.ClusterConfig.Core.Parsers
             return true;
         }
 
-        private IEnumerable<ISettingsNode> ParseDirectory(DirectoryInfo directory)
+        private IEnumerable<ISettingsNode> ParseDirectory(DirectoryInfo directory, string zone)
         {
             if (!directory.Exists)
                 yield break;
 
             foreach (var file in GetFilesSafe(directory).Where(ShouldBeProcessed))
             {
-                var fileTree = fileParser.Parse(file);
+                var fileTree = fileParser.Parse(file, zone);
                 if (fileTree != null)
                     yield return fileTree;
             }
 
             foreach (var subDirectory in GetDirectoriesSafe(directory).Where(ShouldBeProcessed))
             {
-                var subDirectoryNode = new ObjectNode(subDirectory.Name.ToLower(), ParseDirectory(subDirectory));
+                var subDirectoryNode = new ObjectNode(subDirectory.Name.ToLower(), ParseDirectory(subDirectory, zone));
                 if (subDirectoryNode.ChildrenCount > 0)
                     yield return subDirectoryNode;
             }
