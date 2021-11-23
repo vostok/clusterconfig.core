@@ -27,8 +27,8 @@
     <RepositoryUrl>https://github.com/vostok/clusterconfig.core</RepositoryUrl>
   </PropertyGroup>
 
-  <Import Project="..\..\vostok.commons.binary\BinaryBufferReader.props" />
-  <Import Project="..\..\vostok.commons.binary\BinaryBufferWriter.props" />
+  <Import Project="..\..\vostok.commons.binary\BinaryBufferReader.props" Condition="Exists('..\..\vostok.commons.binary\BinaryBufferReader.props')" />
+  <Import Project="..\..\vostok.commons.binary\BinaryBufferWriter.props" Condition="Exists('..\..\vostok.commons.binary\BinaryBufferWriter.props')" />
 
   <ItemGroup>
     <Reference Include="Vostok.Configuration.Abstractions">
