@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vostok.ClusterConfig.Core.Patching;
 using Vostok.Commons.Binary;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
@@ -22,6 +23,9 @@ namespace Vostok.ClusterConfig.Core.Serialization
     //  + ChildIndex (detailed below)
     //  + Node[]
 
+    // DeleteNode format:
+    //  + node type (byte)
+    
     // ChildIndex format:
     //  + Index length (int) — does not include itself
     //  + ChildCoordinate[]
@@ -30,11 +34,12 @@ namespace Vostok.ClusterConfig.Core.Serialization
     //  + Path segment (string in UTF-8 with length)
     //  + Offset of child content (int, counted from the end of the index)
 
-    internal class TreeSerializerV1 : ITreeSerializer
+    internal class BinaryTreeSerializer : ITreeSerializer
     {
         private const byte ObjectNodeType = 1;
         private const byte ArrayNodeType = 2;
         private const byte ValueNodeType = 3;
+        private const byte DeleteNodeType = 4;
 
         public void Serialize(ISettingsNode tree, IBinaryWriter writer)
             => SerializeAny(tree ?? throw new ArgumentNullException(nameof(tree)), writer);
@@ -64,6 +69,10 @@ namespace Vostok.ClusterConfig.Core.Serialization
                 case ValueNode valueNode:
                     Serialize(valueNode, writer);
                     return;
+                
+                case DeleteNode deleteNode:
+                    Serialize(deleteNode, writer);
+                    return;
             }
 
             throw new InvalidOperationException($"Serialized tree contains a node of unknown type '{tree.GetType().Name}'.");
@@ -83,6 +92,9 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
                 case ValueNodeType:
                     return DeserializeValueNode(name, reader);
+                
+                case DeleteNodeType:
+                    return DeserializeDeleteNode(name, reader);
             }
 
             throw new InvalidOperationException($"Node type value '{nodeType}' does not correspond to any known nodes.");
@@ -239,6 +251,16 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
         private static ValueNode DeserializeValueNode(string name, IBinaryReader reader)
             => new ValueNode(name, reader.ReadString());
+
+        #endregion
+
+        #region DeleteNode
+
+        private static void Serialize(DeleteNode node, IBinaryWriter writer) =>
+            writer.Write(DeleteNodeType);
+
+        private static DeleteNode DeserializeDeleteNode(string name, IBinaryReader reader) =>
+            new DeleteNode(name);
 
         #endregion
     }
