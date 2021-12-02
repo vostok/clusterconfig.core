@@ -4,6 +4,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Vostok.ClusterConfig.Client.Abstractions;
+using Vostok.ClusterConfig.Core.Patching;
 using Vostok.ClusterConfig.Core.Serialization;
 using Vostok.ClusterConfig.Core.Tests.Helpers;
 using Vostok.Commons.Binary;
@@ -12,15 +13,15 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 namespace Vostok.ClusterConfig.Core.Tests.Serialization
 {
     [TestFixture]
-    internal class TreeSerializerV1_Tests
+    internal class BinaryTreeSerializer_Tests
     {
-        private TreeSerializerV1 serializer;
+        private BinaryTreeSerializer serializer;
         private ISettingsNode tree;
 
         [SetUp]
         public void TestSetup()
         {
-            serializer = new TreeSerializerV1();
+            serializer = new BinaryTreeSerializer();
 
             tree = new TreeBuilder()
                 .Add("plain-value", "value1")
@@ -43,6 +44,14 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
         [Test]
         public void Should_correctly_serialize_and_deserialize_a_complex_tree()
         {
+            TestSerialization();
+        }
+
+        [Test]
+        public void Should_correctly_serialize_and_deserialize_a_tree_with_DeleteNode()
+        {
+            tree = new ObjectNode(null, new [] {new ObjectNode("foo") as ISettingsNode, new DeleteNode("bar") });
+            
             TestSerialization();
         }
 

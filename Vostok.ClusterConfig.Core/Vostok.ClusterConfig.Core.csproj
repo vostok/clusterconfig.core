@@ -36,5 +36,11 @@
       <HintPath>..\..\vostok.configuration.abstractions\Vostok.Configuration.Abstractions\bin\Release\netstandard2.0\Vostok.Configuration.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\vostok.configuration.abstractions\Vostok.Configuration.Abstractions\SettingsTree\Comparers.cs">
+      <Link>Commons\Comparers.cs</Link>
+    </Compile>
+  </ItemGroup>
   
 </Project>
