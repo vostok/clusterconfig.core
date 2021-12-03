@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -13,15 +14,15 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 namespace Vostok.ClusterConfig.Core.Tests.Serialization
 {
     [TestFixture]
-    internal class BinaryTreeSerializer_Tests
+    internal class TreeSerializerV2_Tests
     {
-        private BinaryTreeSerializer serializer;
+        private TreeSerializerV2 serializer;
         private ISettingsNode tree;
 
         [SetUp]
         public void TestSetup()
         {
-            serializer = new BinaryTreeSerializer();
+            serializer = new TreeSerializerV2();
 
             tree = new TreeBuilder()
                 .Add("plain-value", "value1")
@@ -115,27 +116,27 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
         }
 
         [Test]
-        public void Should_fail_on_a_null_argument()
+        public void Should_not_fail_on_a_null_argument()
         {
             tree = null;
 
-            TestFailure<ArgumentNullException>();
+            TestSerialization();
         }
 
         [Test]
-        public void Should_fail_on_nested_arrays()
+        public void Should_not_fail_on_nested_arrays()
         {
-            tree = new ArrayNode("a1", new [] {new ArrayNode("a2", new List<ISettingsNode>()) });
+            tree = new ArrayNode(null, new [] {new ArrayNode("0", new List<ISettingsNode>()) });
 
-            TestFailure<InvalidOperationException>();
+            TestSerialization();
         }
 
         [Test]
-        public void Should_fail_on_arrays_with_nested_objects()
+        public void Should_not_fail_on_arrays_with_nested_objects()
         {
-            tree = new ArrayNode("a1", new[] { new ObjectNode("obj") });
+            tree = new ArrayNode(null, new[] { new ObjectNode("0") });
 
-            TestFailure<InvalidOperationException>();
+            TestSerialization();
         }
 
         [Test]
@@ -150,13 +151,9 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
         {
             var writer = new BinaryBufferWriter(64);
 
-            writer.Write(Guid.NewGuid());
-
             serializer.Serialize(tree, writer);
 
-            var reader = new BinaryBufferReader(writer.Buffer, 16);
-
-            var deserializedTree = serializer.Deserialize(reader);
+            var deserializedTree = serializer.Deserialize(writer.Buffer.Take(writer.Length).ToArray());
 
             deserializedTree.Should().Be(tree);
         }
@@ -165,15 +162,12 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
         {
             var writer = new BinaryBufferWriter(64);
 
-            writer.Write(Guid.NewGuid());
-
             serializer.Serialize(tree, writer);
 
-            var reader = new BinaryBufferReader(writer.Buffer, 16);
+            var deserializedTree = serializer.Deserialize(writer.Buffer.Take(writer.Length).ToArray(), path.Segments);
 
-            var deserializedTree = serializer.Deserialize(reader, path.Segments);
-
-            deserializedTree.Should().Be(tree.ScopeTo(path.Segments));
+            var expected = tree.ScopeTo(path.Segments);
+            deserializedTree.Should().Be(expected);
         }
 
         private void TestFailure<TException>()
