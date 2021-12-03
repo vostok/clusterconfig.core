@@ -4,7 +4,6 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Vostok.ClusterConfig.Client.Abstractions;
-using Vostok.ClusterConfig.Core.Patching;
 using Vostok.ClusterConfig.Core.Serialization;
 using Vostok.ClusterConfig.Core.Tests.Helpers;
 using Vostok.Commons.Binary;
