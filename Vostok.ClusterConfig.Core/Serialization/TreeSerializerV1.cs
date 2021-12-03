@@ -35,7 +35,6 @@ namespace Vostok.ClusterConfig.Core.Serialization
         private const byte ObjectNodeType = 1;
         private const byte ArrayNodeType = 2;
         private const byte ValueNodeType = 3;
-        private const byte DeleteNodeType = 4;
 
         public void Serialize(ISettingsNode tree, IBinaryWriter writer)
             => SerializeAny(tree ?? throw new ArgumentNullException(nameof(tree)), writer);
