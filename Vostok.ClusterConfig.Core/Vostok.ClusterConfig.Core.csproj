@@ -38,6 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\vostok.commons.collections\Vostok.Commons.Collections\UnboundedObjectPool.cs">
+      <Link>Commons\UnboundedObjectPool.cs</Link>
+    </Compile>
     <Compile Include="..\..\vostok.configuration.abstractions\Vostok.Configuration.Abstractions\SettingsTree\Comparers.cs">
       <Link>Commons\Comparers.cs</Link>
     </Compile>
