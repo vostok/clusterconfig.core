@@ -5,7 +5,7 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization
 {
-    internal interface ITreeSerializerV1
+    internal interface ITreeSerializer
     {
         void Serialize([NotNull] ISettingsNode tree, [NotNull] IBinaryWriter writer);
 
