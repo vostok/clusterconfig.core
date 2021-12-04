@@ -28,6 +28,8 @@ full-build > notests:
     configuration: Release
 
   deps:
+    - -vostok.devtools
+    - vostok.devtools@with-net6.0
     - vostok.configuration.sources
     - vostok.clusterconfig.client.abstractions
     - vostok.commons.testing/src
