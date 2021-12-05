@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Vostok.ClusterConfig.Core.Serialization.V2;
 using Vostok.Commons.Binary;
 using Vostok.Commons.Collections;
@@ -39,7 +40,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
         public TreeSerializerV2() => anyNodeSerializer = new AnyNodeSerializerV2();
 
-        public void Serialize(ISettingsNode tree, IBinaryWriter writer)
+        public void Serialize([CanBeNull] ISettingsNode tree, IBinaryWriter writer)
         {
             if (tree != null)
                 anyNodeSerializer.Serialize(tree, writer);

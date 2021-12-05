@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vostok.ClusterConfig.Core.Utils;
 using Vostok.Commons.Binary;
 using Vostok.Configuration.Abstractions.SettingsTree;
@@ -9,6 +10,8 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
 {
     internal class ObjectNodeSerializerV2 : BaseSettingsNodeSerializerV2<ObjectNode>
     {
+        private static readonly Encoding Encoding = Encoding.UTF8;
+
         private readonly BaseSettingsNodeSerializerV2<ISettingsNode> any;
 
         public ObjectNodeSerializerV2(BaseSettingsNodeSerializerV2<ISettingsNode> any) => this.any = any;

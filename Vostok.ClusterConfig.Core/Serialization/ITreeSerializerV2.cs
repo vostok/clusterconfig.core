@@ -5,10 +5,8 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization
 {
-    internal interface ITreeSerializerV2
+    internal interface ITreeSerializerV2 : ITreeSerializer
     {
-        void Serialize([CanBeNull] ISettingsNode tree, [NotNull] IBinaryWriter writer);
-
         [CanBeNull] ISettingsNode Deserialize([NotNull] byte[] tree);
 
         [CanBeNull] ISettingsNode Deserialize([NotNull] byte[] tree, [NotNull] IEnumerable<string> path);

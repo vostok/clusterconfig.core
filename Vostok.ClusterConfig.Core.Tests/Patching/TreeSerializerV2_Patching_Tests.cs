@@ -80,7 +80,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
 
         private static void PrintBin(string name, byte[] bin)
         {
-            TestContext.Out.WriteLine($"{name}:\n{string.Join("\n", bin.Select(b => $" {b:X}"))}\n");
+            TestContext.Out.WriteLine($"{name} ({bin.Length}):\n{string.Join("\n", bin.Select(b => $" {b:X}"))}\n");
         }
     }
 }

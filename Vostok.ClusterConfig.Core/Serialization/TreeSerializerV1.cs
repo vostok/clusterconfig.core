@@ -30,7 +30,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
     //  + Path segment (string in UTF-8 with length)
     //  + Offset of child content (int, counted from the end of the index)
 
-    internal class TreeSerializerV1 : ITreeSerializer
+    internal class TreeSerializerV1 : ITreeSerializerV1
     {
         private const byte ObjectNodeType = 1;
         private const byte ArrayNodeType = 2;

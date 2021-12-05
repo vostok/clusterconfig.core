@@ -11,10 +11,10 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
     {
         public static IEnumerable<TestCaseData> GetTestCases(string testClassName, bool rootNameNull, bool valueNotNull) =>
             GetValueTestCases(rootNameNull, valueNotNull)
-                // .Concat(GetArrayTestCases(rootNameNull))
-                // .Concat(GetObjectTestCases(rootNameNull))
-                // .Concat(GetObjectDifficultTestCases())
-                // .Concat(GetMixedTypesTestCases(rootNameNull, valueNotNull))
+                .Concat(GetArrayTestCases(rootNameNull))
+                .Concat(GetObjectTestCases(rootNameNull))
+                .Concat(GetObjectDifficultTestCases())
+                .Concat(GetMixedTypesTestCases(rootNameNull, valueNotNull))
                 .Select(c => new TestCaseData(c.Arguments) {TestName = $"{testClassName}: {c.TestName}"});
 
         protected static IEnumerable<TestCaseData> GetValueTestCases(bool rootNameNull, bool valueNotNull)
