@@ -4,7 +4,7 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization.V2
 {
-    internal class ArrayNodeSerializerV2 : BaseSettingsNodeSerializerV2<ArrayNode>
+    internal class ArrayNodeSerializerV2 : ReplaceableNodeSerializerV2<ArrayNode>
     {
         private readonly BaseSettingsNodeSerializerV2<ISettingsNode> any;
 
@@ -12,7 +12,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
 
         public override void Serialize(ArrayNode node, IBinaryWriter writer)
         {
-            using (BeginNode(writer, NodeType.Array))
+            using (Node(writer, NodeType.Array))
             {
                 writer.Write(node.ChildrenCount);
 

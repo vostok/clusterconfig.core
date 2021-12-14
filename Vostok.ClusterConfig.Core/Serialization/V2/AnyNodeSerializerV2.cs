@@ -102,5 +102,41 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
                 }
             }
         }
+
+        public override void GetBinPatch(BinPatchContext context, BinPatchWriter writer)
+        {
+            if (IsEnded(context.Old))
+            {
+                writer.WriteAppend(context.New.Buffer, context.New.Position, context.New.BytesRemaining);
+            }
+            else if (IsEnded(context.New))
+            {
+                writer.WriteDelete(context.New.BytesRemaining);
+            }
+            else
+            {
+                PeekHeader(context.Old, out var type, out _);
+
+                switch (type)
+                {
+                    case NodeType.Delete:
+                        deleteSerializer.GetBinPatch(context, writer);
+                        break;
+                    case NodeType.Value:
+                        valueSerializer.GetBinPatch(context, writer);
+                        break;
+                    case NodeType.Array:
+                        arraySerializer.GetBinPatch(context, writer);
+                        break;
+                    case NodeType.Object:
+                        objectSerializer.GetBinPatch(context, writer);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unknown node type {type}");
+                }
+            }
+        }
+
+        private bool IsEnded(BinaryBufferReader reader) => reader.Position >= reader.Buffer.Length;
     }
 }

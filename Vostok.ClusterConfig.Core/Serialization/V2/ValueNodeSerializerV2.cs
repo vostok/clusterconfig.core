@@ -6,13 +6,13 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization.V2
 {
-    internal class ValueNodeSerializerV2 : BaseSettingsNodeSerializerV2<ValueNode>
+    internal class ValueNodeSerializerV2 : ReplaceableNodeSerializerV2<ValueNode>
     {
         private static readonly Encoding Encoding = Encoding.UTF8;
         
         public override void Serialize(ValueNode node, IBinaryWriter writer)
         {
-            using (BeginNode(writer, NodeType.Value))
+            using (Node(writer, NodeType.Value))
                 writer.WriteWithoutLength(Encoding.GetBytes(node.Value ?? String.Empty));
         }
 

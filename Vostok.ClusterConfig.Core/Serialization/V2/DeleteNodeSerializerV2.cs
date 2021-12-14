@@ -6,11 +6,11 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization.V2
 {
-    internal class DeleteNodeSerializerV2 : BaseSettingsNodeSerializerV2<DeleteNode>
+    internal class DeleteNodeSerializerV2 : ReplaceableNodeSerializerV2<DeleteNode>
     {
         public override void Serialize(DeleteNode node, IBinaryWriter writer)
         {
-            using (BeginNode(writer, NodeType.Delete)) ;
+            using (Node(writer, NodeType.Delete)) ;
         }
 
         public override DeleteNode Deserialize(IBinaryReader reader, string name)

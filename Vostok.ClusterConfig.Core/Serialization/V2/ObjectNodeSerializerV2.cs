@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Vostok.ClusterConfig.Core.Utils;
 using Vostok.Commons.Binary;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
@@ -18,10 +17,8 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
 
         public override void Serialize(ObjectNode node, IBinaryWriter writer)
         {
-            using (BeginNode(writer, NodeType.Object))
+            using (Node(writer, NodeType.Object))
             {
-                writer.Write(node.ChildrenCount);
-
                 foreach (var child in node.Children.OrderBy(n => n.Name, Comparers.NodeNameComparer))
                 {
                     WriteKey(child.Name, writer);
@@ -32,10 +29,8 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
 
         public override ObjectNode Deserialize(IBinaryReader reader, string name)
         {
-            EnsureType(reader, NodeType.Object);
-            
             var enumerator = new ObjectEnumerator<IBinaryReader>(reader);
-            var children = new List<ISettingsNode>(enumerator.Count);
+            var children = new List<ISettingsNode>();
             while (enumerator.MoveNext())
                 children.Add(any.Deserialize(reader, enumerator.CurrentKey));
 
@@ -46,8 +41,6 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
         {
             if (!path.MoveNext())
                 return Deserialize(reader, name);
-
-            EnsureType(reader, NodeType.Object);
 
             var enumerator = new ObjectEnumerator<IBinaryReader>(reader);
             while (enumerator.MoveNext())
@@ -61,19 +54,11 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             return null;
         }
 
+        #region Apply patch
         public override void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)
         {
-            EnsureType(settings, NodeType.Object);
-            EnsureType(patch, NodeType.Object);
-
-            using (BeginNode(result, NodeType.Object))
-            {
-                var childCountVariable = result.AddIntVariable();
-
-                var childCount = MergeChildren(new ObjectEnumerator<BinaryBufferReader>(settings), new ObjectEnumerator<BinaryBufferReader>(patch), result);
-                
-                childCountVariable.Set(childCount);
-            }
+            using (Node(result, NodeType.Object))
+                MergeChildren(new ObjectEnumerator<BinaryBufferReader>(settings), new ObjectEnumerator<BinaryBufferReader>(patch), result);
         }
 
         private int MergeChildren(ObjectEnumerator<BinaryBufferReader> settings, ObjectEnumerator<BinaryBufferReader> patch, IBinaryWriter result)
@@ -146,35 +131,124 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
                 patchKey = null;
             }
         }
+        #endregion
 
+        public override void GetBinPatch(BinPatchContext context, BinPatchWriter writer)
+        {
+            if (!EnsureSameType(context, writer, out var oldLength, out var newLength))
+                return;
 
-        private static void WriteKey(string key, IBinaryWriter writer) =>
-            writer.WriteWithLength(key ?? throw new InvalidOperationException("Key can't be null"));
+            var oldEnumerator = new ObjectEnumerator<BinaryBufferReader>(context.Old, oldLength);
+            var newEnumerator = new ObjectEnumerator<BinaryBufferReader>(context.New, newLength);
+
+            var oldKey = default(string);
+            var newKey = default(string);
+
+            while (true)
+            {
+                oldKey = oldKey ?? (oldEnumerator.MoveNext() ? oldEnumerator.CurrentKey : null);
+                newKey = newKey ?? (newEnumerator.MoveNext() ? newEnumerator.CurrentKey : null);
+
+                if (oldKey == null && newKey == null)
+                    break;
+
+                var comp = Comparers.NodeNameComparer.Compare(oldKey ?? string.Empty, newKey ?? string.Empty);
+                
+                if (oldKey == null || comp > 0) // note (a.tolstov, 05.12.2021): В новом объекте появился ключ, которого небыло в старом
+                {
+                    PeekHeader(context.New, out _, out var length);
+                    writer.WriteAppend(context.New.Buffer, context.New.Position - newEnumerator.CurrentKeyLengthBytes, newEnumerator.CurrentKeyLengthBytes + length);
+                    context.New.Position += length;
+                    
+                    newKey = null;
+                } 
+                else if (newKey == null || comp < 0) // note (a.tolstov, 05.12.2021): В старом объекте есть ключ, который пропал в новом
+                {
+                    PeekHeader(context.Old, out _, out var length);
+                    writer.WriteDelete(oldEnumerator.CurrentKeyLengthBytes + length);
+                    context.Old.Position += length;
+                    
+                    oldKey = null;
+                }
+                else  // note (a.tolstov, 05.12.2021): Ключ есть и в старом, и в новом объекте
+                {
+                    if (oldKey != newKey) // note (a.tolstov, 05.12.2021): Вдруг поменялся регистр 
+                    {
+                        writer.WriteDelete(oldEnumerator.CurrentKeyLengthBytes);
+                        writer.WriteAppend(context.New.Buffer, context.New.Position - newEnumerator.CurrentKeyLengthBytes, newEnumerator.CurrentKeyLengthBytes + newLength);
+                    }
+                    else
+                    {
+                        writer.WriteNotDifferent(oldEnumerator.CurrentKeyLengthBytes);
+                    }
+
+                    any.GetBinPatch(context, writer);
+                    
+                    oldKey = null;
+                    newKey = null;
+                }
+            }
+        }
+
+        private static void WriteKey(string key, IBinaryWriter writer)
+        {
+            writer.WriteVarlen((ulong)Encoding.GetByteCount(key ?? throw new NullReferenceException("Key can't be null")));
+            writer.WriteWithoutLength(Encoding.GetBytes(key));
+        }
+
+        private static string ReadKey(IBinaryReader reader)
+        {
+            var length = (int)reader.ReadVarlenUInt64();
+            return Encoding.GetString(reader.ReadByteArray(length));
+        }
 
         private class ObjectEnumerator<TReader>
-            where TReader : IBinaryReader
+            where TReader : class, IBinaryReader
         {
-            public int Index = -1;
             public readonly TReader Reader;
 
+            private readonly long begin;            
+            private readonly long end;
+
+            public ObjectEnumerator(TReader reader, long length)
+            {
+                Reader = reader;
+
+                begin = reader.Position;
+                end = begin + length;
+            }
+            
             public ObjectEnumerator(TReader reader)
             {
                 Reader = reader;
-                Count = reader.ReadInt32();
+
+                EnsureType(Reader, NodeType.Object, out var length);
+                
+                begin = reader.Position;
+                end = begin + length;
             }
 
             public string CurrentKey { get; private set; }
-            public int Count { get; }
+            public int CurrentKeyLengthBytes { get; private set; }
 
             public bool MoveNext()
             {
-                if (++Index >= Count)
+                if (Reader.Position >= end)
                     return false;
 
-                CurrentKey = Reader.ReadString();
+                var beforeReadKey = Reader.Position;
+                CurrentKey = ReadKey(Reader);
+                CurrentKeyLengthBytes = (int) (Reader.Position - beforeReadKey);
 
                 return true;
             }
-        }
+
+            public void Reset()
+            {
+                Reader.Position = begin;
+                CurrentKey = null;
+                CurrentKeyLengthBytes = 0;
+            }
+         }
     }
 }
