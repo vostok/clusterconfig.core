@@ -27,7 +27,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
             var newSettingsBin = Serialize(newSettings);
             var patchBin = Serialize(patch);
             
-            var patchedSettingsBin = Serializer.ApplyPatch(oldSettingsBin, patchBin);
+            var patchedSettingsBin = ApplyPatch(oldSettingsBin, patchBin);
             var patchedSettings = Serializer.Deserialize(patchedSettingsBin);
 
             TestContext.Out.WriteLine($"OLD SETTINGS:\n{oldSettings}\n");
@@ -63,7 +63,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
             var oldBin = Serialize(old);
             var patchBin = Serialize(patch);
 
-            var patchedBin = Serializer.ApplyPatch(oldBin, patchBin);
+            var patchedBin = ApplyPatch(oldBin, patchBin);
 
             patchedBin.Should().BeEmpty();
             Serializer.Deserialize(patchedBin).Should().BeNull();
@@ -74,6 +74,15 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
             var writer = new BinaryBufferWriter(1024);
             
             Serializer.Serialize(tree, writer);
+
+            return writer.FilledSegment.ToArray();
+        }
+
+        private byte[] ApplyPatch(byte[] settings, byte[] patch)
+        {
+            var writer = new BinaryBufferWriter(1024);
+            
+            Serializer.ApplyPatch(settings, patch, writer);
 
             return writer.FilledSegment.ToArray();
         }
