@@ -15,27 +15,23 @@ namespace Vostok.ClusterConfig.Core.Serialization
     //  + node content (detailed below)
     
     // ObjectNode content format:
-    //  + pairs count (byte)
-    //  + pairs, every pair:
-    //    + Key length in bytes (int)
-    //    + Key (UTF-8 string)
-    //    + Value: any node
+    //  + children count (int)
+    //  + children, every child:
+    //    + Key: UTF-8 string with length
+    //    + Value: INode
+    // (Children are ordered by key (OrdinalIgnoreCase))
 
     // ArrayNode content format:
-    //  + items count (byte)
-    //  + nodes
+    //  + children count (int)
+    //  + children: INode[]
 
     // ValueNode content format:
-    //  + length in bytes (int)
-    //  + UTD-8 string
+    //  + UTF-8 string without length
     
     //  DeleteNode doesn't have a content
 
     internal class TreeSerializerV2 : ITreeSerializerV2
     {
-        private static readonly UnboundedObjectPool<BinaryBufferWriter> WriterPool
-            = new UnboundedObjectPool<BinaryBufferWriter>(() => new BinaryBufferWriter(4096));
-
         private readonly AnyNodeSerializerV2 anyNodeSerializer;
 
         public TreeSerializerV2() => anyNodeSerializer = new AnyNodeSerializerV2();
@@ -57,25 +53,19 @@ namespace Vostok.ClusterConfig.Core.Serialization
                 return tree.Any() ? anyNodeSerializer.Deserialize(new BinaryBufferReader(tree, 0), pathEnumerator, null) : null;
         }
 
-        public byte[] ApplyPatch(byte[] settings, byte[] patch)
+        public void ApplyPatch(byte[] settings, byte[] patch, IBinaryWriter result)
         {
             if (!patch.Any())
-                return settings;
-
-            if (!settings.Any())
-                return patch;
-            
-            using (WriterPool.Acquire(out var writer))
             {
-                writer.Reset();
-
-                anyNodeSerializer.ApplyPatch(new BinaryBufferReader(settings, 0), new BinaryBufferReader(patch, 0), writer);
-
-                var result = new byte[writer.Length];
-                
-                Array.Copy(writer.Buffer, result, writer.Length);
-
-                return result;
+                result.WriteWithoutLength(settings);
+            }
+            else if (!settings.Any())
+            {
+                result.WriteWithoutLength(patch);
+            }
+            else
+            {
+                anyNodeSerializer.ApplyPatch(new BinaryBufferReader(settings, 0), new BinaryBufferReader(patch, 0), result);
             }
         }
     }

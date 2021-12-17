@@ -8,8 +8,14 @@ namespace Vostok.ClusterConfig.Core.Patching
 {
     public class Patcher : IPatcher
     {
-        public ISettingsNode GetPatch([NotNull] ISettingsNode oldSettings, [NotNull] ISettingsNode newSettings)
+        public ISettingsNode GetPatch([CanBeNull] ISettingsNode oldSettings, [CanBeNull] ISettingsNode newSettings)
         {
+            if (oldSettings == null)
+                return newSettings;
+
+            if (newSettings == null)
+                return new DeleteNode(oldSettings.Name);
+            
             if (oldSettings is DeleteNode)
                 throw new ArgumentException(nameof(oldSettings), $"{nameof(DeleteNode)} is not supported for patch calculation");
             
@@ -29,13 +35,16 @@ namespace Vostok.ClusterConfig.Core.Patching
         }
 
         [CanBeNull]
-        public ISettingsNode ApplyPatch([NotNull] ISettingsNode oldSettings, [CanBeNull] ISettingsNode patch)
+        public ISettingsNode ApplyPatch([CanBeNull] ISettingsNode oldSettings, [CanBeNull] ISettingsNode patch)
         {
-            if (oldSettings is DeleteNode)
-                throw new ArgumentException(nameof(oldSettings), $"{nameof(DeleteNode)} is not supported for patch calculation");
-
+            if (oldSettings == null)
+                return patch;
+            
             if (patch == null)
                 return oldSettings;
+            
+            if (oldSettings is DeleteNode)
+                throw new ArgumentException(nameof(oldSettings), $"{nameof(DeleteNode)} is not supported for patch calculation");
 
             if (patch is DeleteNode)
                 return null;
