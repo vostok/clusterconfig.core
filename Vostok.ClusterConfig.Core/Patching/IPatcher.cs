@@ -6,9 +6,9 @@ namespace Vostok.ClusterConfig.Core.Patching
     internal interface IPatcher
     {
         [CanBeNull]
-        ISettingsNode GetPatch([NotNull] ISettingsNode oldSettings, [NotNull] ISettingsNode newSettings);
+        ISettingsNode GetPatch([CanBeNull] ISettingsNode oldSettings, [CanBeNull] ISettingsNode newSettings);
 
         [CanBeNull]
-        ISettingsNode ApplyPatch([NotNull] ISettingsNode oldSettings, [CanBeNull] ISettingsNode patch);
+        ISettingsNode ApplyPatch([CanBeNull] ISettingsNode oldSettings, [CanBeNull] ISettingsNode patch);
     }
 }

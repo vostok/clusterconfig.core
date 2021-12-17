@@ -11,6 +11,6 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
         [CanBeNull] ISettingsNode Deserialize([NotNull] byte[] tree, [NotNull] IEnumerable<string> path);
         
-        [NotNull] byte[] ApplyPatch([NotNull] byte[] settings, [NotNull] byte[] patch);
+        void ApplyPatch([NotNull] byte[] settings, [NotNull] byte[] patch, [NotNull] IBinaryWriter result);
     }
 }

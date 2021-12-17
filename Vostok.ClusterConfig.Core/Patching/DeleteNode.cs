@@ -9,7 +9,7 @@ namespace Vostok.ClusterConfig.Core.Patching
     public class DeleteNode : ISettingsNode
     {
         /// <summary>
-        /// Creates a new <see cref="ValueNode"/> with the given <paramref name="name"/>.
+        /// Creates a new <see cref="DeleteNode"/> with the given <paramref name="name"/>.
         /// </summary>
         public DeleteNode([CanBeNull] string name = null)
         {
