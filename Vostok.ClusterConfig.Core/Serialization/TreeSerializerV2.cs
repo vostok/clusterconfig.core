@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
+using Vostok.ClusterConfig.Core.Patching;
 using Vostok.ClusterConfig.Core.Serialization.V2;
 using Vostok.Commons.Binary;
-using Vostok.Commons.Collections;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization
@@ -30,7 +29,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
     
     //  DeleteNode doesn't have a content
 
-    internal class TreeSerializerV2 : ITreeSerializerV2
+    internal class TreeSerializerV2 : ITreeSerializer, IBinaryPatcher
     {
         private readonly AnyNodeSerializerV2 anyNodeSerializer;
 
@@ -42,30 +41,30 @@ namespace Vostok.ClusterConfig.Core.Serialization
                 anyNodeSerializer.Serialize(tree, writer);
         }
 
-        public ISettingsNode Deserialize(byte[] tree)
+        public ISettingsNode Deserialize(BinaryBufferReader tree)
         {
-            return tree.Any() ? anyNodeSerializer.Deserialize(new BinaryBufferReader(tree, 0), null) : null;
+            return tree.BytesRemaining > 0 ? anyNodeSerializer.Deserialize(tree, null) : null;
         }
 
-        public ISettingsNode Deserialize(byte[] tree, IEnumerable<string> path)
+        public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path)
         {
             using (var pathEnumerator = path.GetEnumerator())
-                return tree.Any() ? anyNodeSerializer.Deserialize(new BinaryBufferReader(tree, 0), pathEnumerator, null) : null;
+                return tree.BytesRemaining > 0 ? anyNodeSerializer.Deserialize(tree, pathEnumerator, null) : null;
         }
 
-        public void ApplyPatch(byte[] settings, byte[] patch, IBinaryWriter result)
+        public void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)
         {
-            if (!patch.Any())
+            if (patch.BytesRemaining == 0)
             {
-                result.WriteWithoutLength(settings);
+                result.WriteWithoutLength(settings.Buffer, (int) settings.Position, (int) settings.BytesRemaining);
             }
-            else if (!settings.Any())
+            else if (settings.BytesRemaining == 0)
             {
-                result.WriteWithoutLength(patch);
+                result.WriteWithoutLength(patch.Buffer, (int) patch.Position, (int) patch.BytesRemaining);
             }
             else
             {
-                anyNodeSerializer.ApplyPatch(new BinaryBufferReader(settings, 0), new BinaryBufferReader(patch, 0), result);
+                anyNodeSerializer.ApplyPatch(settings, patch, result);
             }
         }
     }
