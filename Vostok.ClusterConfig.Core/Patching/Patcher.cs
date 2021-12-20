@@ -16,16 +16,16 @@ namespace Vostok.ClusterConfig.Core.Patching
             if (newSettings == null)
                 return new DeleteNode(oldSettings.Name);
             
-            if (oldSettings.GetType() != newSettings.GetType() || oldSettings.Name != newSettings.Name)
+            if (oldSettings.GetType() != newSettings.GetType() || !Comparers.NodeName.Equals(oldSettings.Name, newSettings.Name))
                 return newSettings;
 
             if (oldSettings is ValueNode || oldSettings is ArrayNode)
-                return GetReplacePatch(oldSettings, newSettings);
+                return oldSettings.Equals(newSettings) ? null : newSettings;
 
             if (oldSettings is ObjectNode)
                 return GetPatch((ObjectNode) oldSettings, (ObjectNode) newSettings);
             
-            throw new NotSupportedException($"Unknown node type {oldSettings.GetType().Name}");
+            throw new NotSupportedException($"Unknown node type {oldSettings.GetType().Name} of node '{oldSettings.Name}'");
         }
 
         [CanBeNull]
@@ -40,7 +40,7 @@ namespace Vostok.ClusterConfig.Core.Patching
             if (oldSettings == null)
                 return patch;
 
-            if (oldSettings.GetType() != patch.GetType() || oldSettings.Name != patch.Name)
+            if (oldSettings.GetType() != patch.GetType() || !Comparers.NodeName.Equals(oldSettings.Name, patch.Name))
                 return patch;
 
             if (oldSettings is ValueNode || oldSettings is ArrayNode)
@@ -49,15 +49,7 @@ namespace Vostok.ClusterConfig.Core.Patching
             if (oldSettings is ObjectNode)
                 return ApplyPatch((ObjectNode)oldSettings, (ObjectNode)patch);
             
-            throw new NotSupportedException($"Unknown node type {oldSettings.GetType().Name}");
-        }
-
-        #region GetPatch
-
-        [CanBeNull]
-        private ISettingsNode GetReplacePatch(ISettingsNode oldSettings, ISettingsNode newSettings)
-        {
-            return oldSettings.Equals(newSettings) ? null : newSettings;
+            throw new NotSupportedException($"Unknown node type {oldSettings.GetType().Name} of node '{oldSettings.Name}'");
         }
 
         [CanBeNull] 
@@ -76,11 +68,7 @@ namespace Vostok.ClusterConfig.Core.Patching
                 : null;
         }
 
-        #endregion
-
-        #region ApplyPatch
-
-        public ISettingsNode ApplyPatch(ObjectNode oldSettings, ObjectNode patch)
+        private ISettingsNode ApplyPatch(ObjectNode oldSettings, ObjectNode patch)
         {
             var children = oldSettings.Children.ToDictionary(c => c.Name);
 
@@ -98,7 +86,5 @@ namespace Vostok.ClusterConfig.Core.Patching
 
             return new ObjectNode(oldSettings.Name, children.Values);
         }
-
-        #endregion
     }
 }
