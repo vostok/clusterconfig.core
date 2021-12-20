@@ -21,7 +21,6 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
             Patcher.GetPatch(settings, settings).Should().BeNull();
         }
         
-        
         [TestCaseSource(typeof(Patcher_Tests), nameof(GetCases))]
         public void Patcher_should_work_correctly(ISettingsNode oldSettings, ISettingsNode newSettings)
         {
@@ -43,23 +42,6 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
             patchedSettings.Should().NotBeNull();
             // ReSharper disable once PossibleNullReferenceException
             patchedSettings.Equals(newSettings).Should().BeTrue();
-        }
-
-        [TestCase(false, true)]
-        [TestCase(true, false)]
-        [TestCase(true, true)]
-        public void Patcher_GetPatch_should_throw_exception_if_any_argument_contains_DeleteNode(bool oldContainsDelete, bool newContainsDelete)
-        {
-            var old = oldContainsDelete ? new DeleteNode() : (ISettingsNode)new ValueNode("1"); 
-            var @new = newContainsDelete ? new DeleteNode() : (ISettingsNode)new ValueNode("2");
-
-            Assert.Throws<ArgumentException>(() => Patcher.GetPatch(old, @new));
-        }
-
-        [Test]
-        public void Patcher_ApplyPatch_should_throw_exception_if_oldSettings_contains_DeleteNode()
-        {
-            Assert.Throws<ArgumentException>(() => Patcher.ApplyPatch(new DeleteNode(), new ValueNode("1")));
         }
     }
 }
