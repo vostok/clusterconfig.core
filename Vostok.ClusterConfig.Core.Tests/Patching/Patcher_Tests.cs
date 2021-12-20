@@ -16,6 +16,13 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
         private static IEnumerable<TestCaseData> GetCases() => PatchingCases.GetTestCases(nameof(Patcher), false, false);
 
         [TestCaseSource(typeof(Patcher_Tests), nameof(GetCases))]
+        public void Patcher_should_return_null_when_no_diff(ISettingsNode settings, ISettingsNode _)
+        {
+            Patcher.GetPatch(settings, settings).Should().BeNull();
+        }
+        
+        
+        [TestCaseSource(typeof(Patcher_Tests), nameof(GetCases))]
         public void Patcher_should_work_correctly(ISettingsNode oldSettings, ISettingsNode newSettings)
         {
             var patch = Patcher.GetPatch(oldSettings, newSettings);
