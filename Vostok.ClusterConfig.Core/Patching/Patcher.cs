@@ -72,22 +72,13 @@ namespace Vostok.ClusterConfig.Core.Patching
         [CanBeNull] 
         private ISettingsNode GetPatch(ObjectNode oldObject, ObjectNode newObject)
         {
-            var differentChild = new List<ISettingsNode>();
-
-            foreach (var key in oldObject.Children.Concat(newObject.Children).Select(c => c.Name).Distinct())
-            {
-                var oldChild = oldObject[key];
-                var newChild = newObject[key];
-
-                ISettingsNode diff = default;
-                
-                if (oldChild != null && newChild != null) diff = GetPatch(oldChild, newChild);
-                else if (oldChild != null) diff = new DeleteNode(key);
-                else if (newChild != null) diff = newChild;
-                
-                if (diff != null)
-                    differentChild.Add(diff);
-            }
+            var differentChild = oldObject.Children
+                .Concat(newObject.Children)
+                .Select(c => c.Name)
+                .Distinct()
+                .Select(key => GetPatch(oldObject[key], newObject[key]))
+                .Where(diff => diff != null)
+                .ToList();
 
             return differentChild.Any()
                 ? new ObjectNode(oldObject.Name, differentChild)
