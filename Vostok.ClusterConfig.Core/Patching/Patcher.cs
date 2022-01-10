@@ -58,7 +58,7 @@ namespace Vostok.ClusterConfig.Core.Patching
             var differentChild = oldObject.Children
                 .Concat(newObject.Children)
                 .Select(c => c.Name)
-                .Distinct()
+                .Distinct(Comparers.NodeName)
                 .Select(key => GetPatch(oldObject[key], newObject[key]))
                 .Where(diff => diff != null)
                 .ToList();
@@ -70,7 +70,7 @@ namespace Vostok.ClusterConfig.Core.Patching
 
         private ISettingsNode ApplyPatch(ObjectNode oldSettings, ObjectNode patch)
         {
-            var children = oldSettings.Children.ToDictionary(c => c.Name);
+            var children = oldSettings.Children.ToDictionary(c => c.Name, Comparers.NodeName);
 
             foreach (var patchChild in patch.Children)
             {
