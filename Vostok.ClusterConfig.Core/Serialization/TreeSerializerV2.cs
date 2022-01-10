@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using JetBrains.Annotations;
 using Vostok.ClusterConfig.Core.Patching;
 using Vostok.ClusterConfig.Core.Serialization.V2;
+using Vostok.ClusterConfig.Core.Utils;
 using Vostok.Commons.Binary;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
@@ -31,26 +33,24 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
     internal class TreeSerializerV2 : ITreeSerializer, IBinaryPatcher
     {
-        private readonly AnyNodeSerializerV2 anyNodeSerializer;
-
-        public TreeSerializerV2() => anyNodeSerializer = new AnyNodeSerializerV2();
-
+        private static readonly Encoding Encoding = Encoding.UTF8;
+        
         public void Serialize([CanBeNull] ISettingsNode tree, IBinaryWriter writer)
         {
             if (tree != null)
-                anyNodeSerializer.Serialize(tree, writer);
+                new NodeWriter(writer, Encoding).WriteNode(tree);
         }
 
         public ISettingsNode Deserialize(BinaryBufferReader tree)
         {
-            return tree.BytesRemaining > 0 ? anyNodeSerializer.Deserialize(tree, null) : null;
+            return tree.BytesRemaining > 0 ? new NodeReader(tree, Encoding).ReadNode(null) : null;
         }
 
         public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path)
         {
             using var pathEnumerator = path.GetEnumerator();
             
-            return tree.BytesRemaining > 0 ? anyNodeSerializer.Deserialize(tree, pathEnumerator, null) : null;
+            return tree.BytesRemaining > 0 ? new NodeReader(tree, Encoding).ReadNode(pathEnumerator, null) : null;
         }
 
         public void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)
@@ -65,7 +65,125 @@ namespace Vostok.ClusterConfig.Core.Serialization
             }
             else
             {
-                anyNodeSerializer.ApplyPatch(settings, patch, result);
+                ApplyPatch(new NodeReader(settings, Encoding), new NodeReader(patch, Encoding), new NodeWriter(result, Encoding));
+            }
+        }
+
+        private void ApplyPatch(NodeReader settings, NodeReader patch, NodeWriter result)
+        {
+            settings.PeekHeader(out var settingsType, out _);
+            patch.PeekHeader(out var patchType, out _);
+
+            if (patchType == NodeType.Delete)
+            {
+                settings.SkipNode();
+                patch.SkipNode();
+            }
+            else if (settingsType != patchType)
+            {
+                settings.SkipNode();
+                patch.CopyNodeTo(result);
+            }
+            else
+            {
+                switch (patchType)
+                {
+                    case NodeType.Object:
+                        MergeObject(settings, patch, result);
+                        break;
+                    case NodeType.Array:
+                    case NodeType.Value:
+                        settings.SkipNode();
+                        patch.CopyNodeTo(result);
+                        break;
+                    default: 
+                        throw new InvalidOperationException($"Unknown node type {patchType}");
+                }
+            }
+        }
+        
+        private void MergeObject(NodeReader settings, NodeReader patch, NodeWriter result)
+        {
+            settings.ReadHeader(out _, out _);
+            patch.ReadHeader(out _, out _);
+
+            using var __ = result.WriteHeader(NodeType.Object);
+            
+            var childCountVariable = result.Writer.WriteIntVariable();
+
+            var childCount = MergeChildren(new KeyValuePairsEnumerator(settings), new KeyValuePairsEnumerator(patch), result);
+                
+            childCountVariable.Set(childCount);
+        }
+
+        private int MergeChildren(KeyValuePairsEnumerator settings, KeyValuePairsEnumerator patch, NodeWriter result)
+        {
+            var count = 0;
+
+            var settingsKey = default(string);
+            var patchKey = default(string);
+
+            while (true)
+            {
+                settingsKey ??= settings.MoveNext() ? settings.CurrentKey : null;
+                patchKey ??= patch.MoveNext() ? patch.CurrentKey : null;
+
+                if (settingsKey == null && patchKey == null)
+                    break;
+                
+                if (patchKey == null)
+                {
+                    CopyChildFromSettings();
+                    continue;
+                }
+
+                if (settingsKey == null)
+                {
+                    CopyChildFromPatch();
+                    continue;
+                }
+
+                var comparison = Comparers.NodeNameComparer.Compare(settingsKey, patchKey);
+                if (comparison == 0) MergeChildrenFromSettingsAndPatch();
+                else if (comparison < 0) CopyChildFromSettings();
+                else CopyChildFromPatch();
+            }
+            
+            return count;
+
+            void CopyChildFromSettings()
+            {
+                result.WriteKey(settingsKey);
+                settings.Reader.CopyNodeTo(result);
+                count++;
+                settingsKey = null;
+            }
+
+            void CopyChildFromPatch()
+            {
+                result.WriteKey(patchKey);
+                patch.Reader.CopyNodeTo(result);
+                count++;
+                patchKey = null;
+            }
+            
+            void MergeChildrenFromSettingsAndPatch()
+            {
+                patch.Reader.PeekHeader(out var patchType, out _);
+                if (patchType == NodeType.Delete)
+                {
+                    settings.Reader.SkipNode();
+                    patch.Reader.SkipNode();
+                }
+                else
+                {
+                    result.WriteKey(patchKey);
+                    ApplyPatch(settings.Reader, patch.Reader, result);
+                    count++;
+                }
+
+                settingsKey = null;
+                patchKey = null;
             }
         }
     }
