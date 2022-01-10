@@ -31,11 +31,11 @@ namespace Vostok.ClusterConfig.Core.Patching
         [CanBeNull]
         public ISettingsNode ApplyPatch([CanBeNull] ISettingsNode oldSettings, [CanBeNull] ISettingsNode patch)
         {
-            if (patch is DeleteNode)
-                return null;
-            
             if (patch == null)
                 return oldSettings;
+            
+            if (patch is DeleteNode)
+                return null;
             
             if (oldSettings == null)
                 return patch;
