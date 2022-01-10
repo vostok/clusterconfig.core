@@ -43,6 +43,22 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
         }
 
         [Test]
+        public void Should_correctly_serialize_and_deserialize_value_tree()
+        {
+            tree = new ValueNode(null, "abcdef");
+        
+            TestSerialization();
+        }
+
+        [Test]
+        public void Should_correctly_serialize_and_deserialize_array_tree()
+        {
+            tree = new ArrayNode(null, new[]{new ValueNode("0", "a"), new ValueNode("1", "b")});
+        
+            TestSerialization();
+        }
+
+        [Test]
         public void Should_correctly_serialize_and_deserialize_a_complex_tree()
         {
             TestSerialization();
@@ -144,7 +160,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
         {
             tree = Substitute.For<ISettingsNode>();
 
-            TestFailure<InvalidOperationException>();
+            TestFailure<ArgumentOutOfRangeException>();
         }
 
         private void TestSerialization()
