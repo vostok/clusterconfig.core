@@ -68,7 +68,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
 
             using (BeginNode(result, NodeType.Object))
             {
-                var childCountVariable = result.AddIntVariable();
+                var childCountVariable = result.WriteIntVariable();
 
                 var childCount = MergeChildren(new ObjectEnumerator<BinaryBufferReader>(settings), new ObjectEnumerator<BinaryBufferReader>(patch), result);
                 

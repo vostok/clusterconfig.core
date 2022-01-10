@@ -70,21 +70,19 @@ namespace Vostok.ClusterConfig.Core.Patching
 
         private ISettingsNode ApplyPatch(ObjectNode oldSettings, ObjectNode patch)
         {
-            var children = oldSettings.Children.ToDictionary(c => c.Name, Comparers.NodeName);
+            var result = oldSettings.Children.ToDictionary(c => c.Name, Comparers.NodeName);
 
             foreach (var patchChild in patch.Children)
             {
                 var key = patchChild.Name ?? throw new InvalidOperationException("Key can't be null");
-                
-                if (patchChild is DeleteNode)
-                    children.Remove(key);
-                else if (children.TryGetValue(key, out var oldChild))
-                    children[key] = ApplyPatch(oldChild, patchChild);
+
+                if (ApplyPatch(oldSettings[key], patchChild) is {} patched)
+                    result[key] = patched;
                 else
-                    children[key] = patchChild;
+                    result.Remove(key);
             }
 
-            return new ObjectNode(oldSettings.Name, children.Values);
+            return new ObjectNode(oldSettings.Name, result.Values);
         }
     }
 }

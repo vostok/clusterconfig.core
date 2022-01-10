@@ -68,13 +68,5 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             writer.Write((byte) type);
             writer.Write(length);
         }
-        
-        protected enum NodeType : byte
-        {
-            Object = 1,
-            Array = 2,
-            Value = 3,
-            Delete = 4
-        }
     }
 }

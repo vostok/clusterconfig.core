@@ -15,7 +15,7 @@ namespace Vostok.ClusterConfig.Core.Utils
             writer.Position = current;
         }
 
-        public static IntVariable AddIntVariable(this IBinaryWriter writer)
+        public static IntVariable WriteIntVariable(this IBinaryWriter writer)
         {
             var position = writer.Position;
             writer.Write(int.MaxValue); // reserve 32 bits for variable
@@ -25,7 +25,7 @@ namespace Vostok.ClusterConfig.Core.Utils
         // note (a.tolstov, 03.12.2021): Returns ContentLength instead IDisposable for prevent boxing 
         public static ContentLengthCounter AddContentLength(this IBinaryWriter writer)
         {
-            var length = writer.AddIntVariable();
+            var length = writer.WriteIntVariable();
             return new ContentLengthCounter(writer, writer.Position, length);
         }
         
