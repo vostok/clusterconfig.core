@@ -48,8 +48,9 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
         public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path)
         {
-            using (var pathEnumerator = path.GetEnumerator())
-                return tree.BytesRemaining > 0 ? anyNodeSerializer.Deserialize(tree, pathEnumerator, null) : null;
+            using var pathEnumerator = path.GetEnumerator();
+            
+            return tree.BytesRemaining > 0 ? anyNodeSerializer.Deserialize(tree, pathEnumerator, null) : null;
         }
 
         public void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)
