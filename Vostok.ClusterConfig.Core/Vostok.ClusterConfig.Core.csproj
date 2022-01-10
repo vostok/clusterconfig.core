@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <Configurations>Debug;Release</Configurations>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>8</LangVersion>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -37,9 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\vostok.commons.collections\Vostok.Commons.Collections\UnboundedObjectPool.cs">
-      <Link>Commons\UnboundedObjectPool.cs</Link>
-    </Compile>
     <Compile Include="..\..\vostok.configuration.abstractions\Vostok.Configuration.Abstractions\SettingsTree\Comparers.cs">
       <Link>Commons\Comparers.cs</Link>
     </Compile>
