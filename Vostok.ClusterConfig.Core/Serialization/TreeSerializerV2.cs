@@ -33,24 +33,27 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
     internal class TreeSerializerV2 : ITreeSerializer, IBinaryPatcher
     {
-        private static readonly Encoding Encoding = Encoding.UTF8;
+        private readonly Encoding encoding;
         
+        public TreeSerializerV2() : this(Encoding.UTF8) { }
+        public TreeSerializerV2(Encoding encoding) => this.encoding = encoding;
+
         public void Serialize([CanBeNull] ISettingsNode tree, IBinaryWriter writer)
         {
             if (tree != null)
-                new NodeWriter(writer, Encoding).WriteNode(tree);
+                new NodeWriter(writer, encoding).WriteNode(tree);
         }
 
         public ISettingsNode Deserialize(BinaryBufferReader tree)
         {
-            return tree.BytesRemaining > 0 ? new NodeReader(tree, Encoding).ReadNode(null) : null;
+            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding).ReadNode(null) : null;
         }
 
         public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path)
         {
             using var pathEnumerator = path.GetEnumerator();
             
-            return tree.BytesRemaining > 0 ? new NodeReader(tree, Encoding).ReadNode(pathEnumerator, null) : null;
+            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding).ReadNode(pathEnumerator, null) : null;
         }
 
         public void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)
@@ -65,7 +68,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
             }
             else
             {
-                ApplyPatch(new NodeReader(settings, Encoding), new NodeReader(patch, Encoding), new NodeWriter(result, Encoding));
+                ApplyPatch(new NodeReader(settings, encoding), new NodeReader(patch, encoding), new NodeWriter(result, encoding));
             }
         }
 
