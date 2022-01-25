@@ -3,5 +3,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Parsers\**\*.cs" LinkBase="Core\Parsers" />
     <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Serialization\**\*.cs" LinkBase="Core\Serialization" />
     <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Patching\*.cs" LinkBase="Core\Patching" />
+    <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Utils\*.cs" LinkBase="Core\Utils" />
   </ItemGroup>
 </Project>
