@@ -4,6 +4,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Serialization\**\*.cs" LinkBase="Core\Serialization" />
     <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Patching\*.cs" LinkBase="Core\Patching" />
     <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Utils\*.cs" LinkBase="Core\Utils" />
-    <Compile Include="$(MSBuildThisFileDirectory)\..\..\vostok.configuration.abstractions\Vostok.Configuration.Abstractions\SettingsTree\Comparers.cs" LinkBase="Commons" />
+    <Compile Include="$(MSBuildThisFileDirectory)\..\vostok.configuration.abstractions\Vostok.Configuration.Abstractions\SettingsTree\Comparers.cs" LinkBase="Commons" />
   </ItemGroup>
 </Project>
