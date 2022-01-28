@@ -2,9 +2,12 @@ namespace Vostok.ClusterConfig.Core.Http
 {
     internal static class ClusterConfigQueryParameters
     {
-        public const string ForceFullQueryKey = "forceFull";
+        public const string ForceFullKey = "forceFull";
 
-        public const string ForceFullReasonProtocolChanged = "protocolChanged";
-        public const string ForceFullReasonNoPrevious = "noPrevious";
+        public static class ForceFullReason
+        {
+            public const string ProtocolChanged = "protocolChanged";
+            public const string NoPrevious = "noPrevious";   
+        }
     }
 }
