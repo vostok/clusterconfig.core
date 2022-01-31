@@ -4,5 +4,6 @@ namespace Vostok.ClusterConfig.Core.Http
     {
         public const string RecommendedProtocol = "ClusterConfig-RecommendedProtocol";
         public const string ReplicaName = "ClusterConfig-Replica";
+        public const string ZoneHash = "ClusterConfig-ZoneHash";
     }
 }
