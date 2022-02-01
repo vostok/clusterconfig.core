@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace Vostok.ClusterConfig.Core.Utils
 {
-    public static class Hasher
+    internal static class Hasher
     {
         public static byte[] GetSha256(this byte[] buffer) => buffer.GetSha256(0, buffer.Length);
         public static byte[] GetSha256(this byte[] buffer, int offset, int length)
