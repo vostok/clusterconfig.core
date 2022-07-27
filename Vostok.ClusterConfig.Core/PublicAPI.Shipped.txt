@@ -1,0 +1,13 @@
+override Vostok.ClusterConfig.Core.Patching.DeleteNode.Equals(object obj) -> bool
+override Vostok.ClusterConfig.Core.Patching.DeleteNode.GetHashCode() -> int
+override Vostok.ClusterConfig.Core.Patching.DeleteNode.ToString() -> string
+Vostok.ClusterConfig.Core.Patching.DeleteNode
+Vostok.ClusterConfig.Core.Patching.DeleteNode.DeleteNode(string name = null) -> void
+Vostok.ClusterConfig.Core.Patching.DeleteNode.Equals(Vostok.ClusterConfig.Core.Patching.DeleteNode other) -> bool
+Vostok.ClusterConfig.Core.Patching.DeleteNode.Merge(Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode other, Vostok.Configuration.Abstractions.Merging.SettingsMergeOptions options = null) -> Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode
+Vostok.ClusterConfig.Core.Patching.DeleteNode.Name.get -> string
+Vostok.ClusterConfig.Core.Patching.DeleteNode.Value.get -> string
+Vostok.ClusterConfig.Core.Patching.Patcher
+Vostok.ClusterConfig.Core.Patching.Patcher.ApplyPatch(Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode oldSettings, Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode patch) -> Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode
+Vostok.ClusterConfig.Core.Patching.Patcher.GetPatch(Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode oldSettings, Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode newSettings) -> Vostok.Configuration.Abstractions.SettingsTree.ISettingsNode
+Vostok.ClusterConfig.Core.Patching.Patcher.Patcher() -> void
