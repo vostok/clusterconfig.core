@@ -130,7 +130,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string Intern(string value)
         {
-            return interningCache == null 
+            return interningCache == null || value == null 
                 ? value 
                 : interningCache.Obtain(value, x => x);
         }
