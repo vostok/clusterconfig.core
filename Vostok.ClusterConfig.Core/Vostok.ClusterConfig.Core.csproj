@@ -41,5 +41,8 @@
       <Link>Commons\Comparers.cs</Link>
     </Compile>
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <Compile Include="..\..\vostok.commons.collections\Vostok.Commons.Collections\RecyclingBoundedCache.cs" Link="Commons\RecyclingBoundedCache.cs" />
+  </ItemGroup>
 </Project>

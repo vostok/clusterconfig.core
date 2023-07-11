@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
+using JetBrains.Annotations;
 using Vostok.ClusterConfig.Core.Patching;
 using Vostok.Commons.Binary;
+using Vostok.Commons.Collections;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization.V2
@@ -10,10 +13,12 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
     internal class NodeReader
     {
         private readonly Encoding encoding;
-        
-        public NodeReader(BinaryBufferReader reader, Encoding encoding)
+        private readonly RecyclingBoundedCache<string, string> interningCache;
+
+        public NodeReader(BinaryBufferReader reader, Encoding encoding, [CanBeNull] RecyclingBoundedCache<string, string> interningCache)
         {
             this.encoding = encoding;
+            this.interningCache = interningCache;
             Reader = reader;
         }
         
@@ -94,6 +99,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             while (enumerator.MoveNext())
                 children.Add(ReadNode(enumerator.CurrentKey));
 
+            name = Intern(name);
             return new ObjectNode(name, children);
         }
         
@@ -106,10 +112,27 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             for (var i = 0; i < count; i++)
                 children.Add(ReadNode(i.ToString()));
 
+            name = Intern(name);
+
             return new ArrayNode(name, children);
         }
         
-        private ValueNode ReadValue(string name, int length) =>
-            new ValueNode(name, encoding.GetString(Reader.ReadByteArray(length)));
+        private ValueNode ReadValue(string name, int length)
+        {
+            var value = encoding.GetString(Reader.ReadByteArray(length));
+
+            name = Intern(name);
+            value = Intern(value);
+
+            return new ValueNode(name, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string Intern(string value)
+        {
+            return interningCache == null 
+                ? value 
+                : interningCache.Obtain(value, x => x);
+        }
     }
 }
