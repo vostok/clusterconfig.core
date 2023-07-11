@@ -38,6 +38,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
         private readonly RecyclingBoundedCache<string, string> interningCache;
 
         public TreeSerializerV2() : this(Encoding.UTF8, null) { }
+        public TreeSerializerV2(RecyclingBoundedCache<string, string> interningCache) : this(Encoding.UTF8, interningCache) { }
         public TreeSerializerV2(Encoding encoding, RecyclingBoundedCache<string, string> interningCache)
         {
             this.encoding = encoding;
