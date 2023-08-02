@@ -6,6 +6,7 @@ using Vostok.ClusterConfig.Core.Patching;
 using Vostok.ClusterConfig.Core.Serialization.V2;
 using Vostok.ClusterConfig.Core.Utils;
 using Vostok.Commons.Binary;
+using Vostok.Commons.Collections;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization
@@ -34,9 +35,15 @@ namespace Vostok.ClusterConfig.Core.Serialization
     internal class TreeSerializerV2 : ITreeSerializer, IBinaryPatcher
     {
         private readonly Encoding encoding;
-        
-        public TreeSerializerV2() : this(Encoding.UTF8) { }
-        public TreeSerializerV2(Encoding encoding) => this.encoding = encoding;
+        private readonly RecyclingBoundedCache<string, string> interningCache;
+
+        public TreeSerializerV2() : this(Encoding.UTF8, null) { }
+        public TreeSerializerV2(RecyclingBoundedCache<string, string> interningCache) : this(Encoding.UTF8, interningCache) { }
+        public TreeSerializerV2(Encoding encoding, RecyclingBoundedCache<string, string> interningCache)
+        {
+            this.encoding = encoding;
+            this.interningCache = interningCache;
+        }
 
         public void Serialize([CanBeNull] ISettingsNode tree, IBinaryWriter writer)
         {
@@ -46,14 +53,14 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
         public ISettingsNode Deserialize(BinaryBufferReader tree)
         {
-            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding).ReadNode(null) : null;
+            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding, interningCache).ReadNode(null) : null;
         }
 
         public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path)
         {
             using var pathEnumerator = path.GetEnumerator();
             
-            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding).ReadNode(pathEnumerator, null) : null;
+            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding, interningCache).ReadNode(pathEnumerator, null) : null;
         }
 
         public void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)
@@ -68,7 +75,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
             }
             else
             {
-                ApplyPatch(new NodeReader(settings, encoding), new NodeReader(patch, encoding), new NodeWriter(result, encoding));
+                ApplyPatch(new NodeReader(settings, encoding, interningCache), new NodeReader(patch, encoding, interningCache), new NodeWriter(result, encoding));
             }
         }
 
