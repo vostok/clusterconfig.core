@@ -1,3 +1,7 @@
+## 0.2.1 (08-02-2023):
+
+Add options to intern string values after deserialization
+
 ## 0.2.0 (04-02-2022):
 
 Added protocol V2
