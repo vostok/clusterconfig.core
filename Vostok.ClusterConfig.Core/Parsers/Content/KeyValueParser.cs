@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using JetBrains.Annotations;
+using Vostok.Commons.Collections;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Parsers.Content
@@ -10,10 +13,20 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
     internal class KeyValueParser : IFileContentParser
     {
         private const string CommentToken = "#";
-
         private static readonly string[] Separators = {":=", "="};
-
         private static readonly char[] ByteOrderMarks = { '\uFEFF' };
+        
+        private readonly RecyclingBoundedCache<string,string> interningCache;
+
+        public KeyValueParser()
+            : this(null)
+        {
+        }
+
+        public KeyValueParser([CanBeNull] RecyclingBoundedCache<string, string> interningCache)
+        {
+            this.interningCache = interningCache;
+        }
 
         public ObjectNode Parse(string name, IFileContent content)
         {
@@ -40,7 +53,7 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
             if (index.Count == 0)
                 index.Add(string.Empty, new List<string> { string.Empty });
 
-            return new ObjectNode(name, index.Select(pair => ConvertToNode(pair.Key, pair.Value)));
+            return new ObjectNode(Intern(name), index.Select(pair => ConvertToNode(pair.Key, pair.Value)));
         }
 
         private static void ParseLine(string line, out string key, out string value)
@@ -69,12 +82,24 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
             return true;
         }
 
-        private static ISettingsNode ConvertToNode(string key, List<string> values)
+        private ISettingsNode ConvertToNode(string key, List<string> values)
         {
             if (values.Count == 1)
-                return new ValueNode(key, values.Single());
+                return new ValueNode(Intern(key), Intern(values.Single()));
 
-            return new ArrayNode(key, values.Select((value, index) => new ValueNode(index.ToString(), value)).ToArray());
+            var children = new ValueNode[values.Count];
+            for (var i = 0; i < values.Count; i++) 
+                children[i] = new ValueNode(Intern(i.ToString()), Intern(values[i]));
+
+            return new ArrayNode(Intern(key), children);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string Intern(string value)
+        {
+            return interningCache == null 
+                ? value 
+                : interningCache.Obtain(value, x => x);
         }
     }
 }

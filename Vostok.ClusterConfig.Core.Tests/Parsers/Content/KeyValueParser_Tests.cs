@@ -6,6 +6,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Vostok.ClusterConfig.Core.Parsers.Content;
+using Vostok.Commons.Collections;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
@@ -186,8 +187,9 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
                 new ValueNode("2", "value3"));
         }
 
-        [Test]
-        public void Should_correctly_parse_a_complex_text_with_a_mix_of_all_cases()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Should_correctly_parse_a_complex_text_with_a_mix_of_all_cases(bool intern)
         {
             contentBuilder.AppendLine();
             contentBuilder.AppendLine("# key1 = Value1");
@@ -201,6 +203,13 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
             contentBuilder.AppendLine("key5 =    ");
             contentBuilder.AppendLine(":=plain2");
             contentBuilder.AppendLine();
+
+            RecyclingBoundedCache<string, string> cache = null;
+            if (intern)
+            {
+                cache = new RecyclingBoundedCache<string, string>(1000);
+                parser = new KeyValueParser(cache);
+            }
 
             var node = Parse().Should().BeOfType<ObjectNode>().Which;
 
@@ -226,6 +235,33 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
                 new ValueNode("1", "Plain3"),
                 new ValueNode("2", "plain2"),
             }));
+
+            if (intern)
+            {
+                CheckInterned(cache, node.Name);
+
+                CheckInterned(cache, node["key2"].Name);
+                CheckInterned(cache, node["key2"].Value);
+                
+                CheckInterned(cache, node["key3"].Name);
+                foreach (var child in node["key3"].Children)
+                {
+                    CheckInterned(cache, child.Name);
+                    CheckInterned(cache, child.Value);
+                }
+
+                CheckInterned(cache, node["key4"].Name);
+                CheckInterned(cache, node["key4"].Value);
+
+                CheckInterned(cache, node["key5"].Name);
+                CheckInterned(cache, node["key5"].Value);
+            }
+        }
+
+        private void CheckInterned(RecyclingBoundedCache<string,string> cache, string value)
+        {
+            cache.TryGetValue(value, out var cachedValue).Should().BeTrue();
+            ReferenceEquals(cachedValue, value).Should().BeTrue();
         }
 
         private ISettingsNode Parse()
