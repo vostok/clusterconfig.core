@@ -6,11 +6,11 @@ namespace Vostok.ClusterConfig.Core.Utils
 {
     internal static class BinaryPatcherExtensions
     {
-        public static byte[] ApplyPatch(this IBinaryPatcher patcher, byte[] old, byte[] patch)
+        public static byte[] ApplyPatch(this IBinaryPatcher patcher, ArraySegment<byte> old, byte[] patch)
         {
             var writer = new BinaryBufferWriter(4096);
 
-            patcher.ApplyPatch(new BinaryBufferReader(old, 0), new BinaryBufferReader(patch, 0), writer);
+            patcher.ApplyPatch(new BinaryBufferReader(old.Array!, old.Offset), new BinaryBufferReader(patch, 0), writer);
 
             var result = new byte[writer.Length];
 
