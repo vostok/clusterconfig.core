@@ -27,8 +27,8 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
         {
             ReadHeader(out var type, out var length);
 
-            //(deniaa): вычитаем 5, это размер заголовка ноды.
-            //(deniaa): Cоответственно к длине надо прибавить 5, чтобы получить нужные координаты поддерева.
+            //(deniaa): Substract 5 as a size of the node header to point to its start.
+            //(deniaa): And we have to add 5 back to the subtree length.
             const int headerLength = 5;
             map[state.ToString()] = new ArraySegment<byte>(Reader.Buffer, (int)Reader.Position - headerLength, length + headerLength);
             

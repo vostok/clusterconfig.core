@@ -14,5 +14,6 @@ namespace Vostok.ClusterConfig.Core.Utils
 
         public static string GetSha256Str(this byte[] buffer) => buffer.GetSha256Str(0, buffer.Length);
         public static string GetSha256Str(this byte[] buffer, int offset, int length) => Convert.ToBase64String(buffer.GetSha256(offset, length));
+        public static string GetSha256Str(this ArraySegment<byte> segment) => Convert.ToBase64String(segment.Array.GetSha256(segment.Offset, segment.Count));
     }
 }

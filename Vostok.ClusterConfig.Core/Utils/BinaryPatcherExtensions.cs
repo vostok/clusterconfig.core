@@ -6,17 +6,20 @@ namespace Vostok.ClusterConfig.Core.Utils
 {
     internal static class BinaryPatcherExtensions
     {
-        public static byte[] ApplyPatch(this IBinaryPatcher patcher, ArraySegment<byte> old, byte[] patch)
+        public static ArraySegment<byte> ApplyPatch(this IBinaryPatcher patcher, ArraySegment<byte> old, ArraySegment<byte> patch)
         {
             var writer = new BinaryBufferWriter(4096);
 
-            patcher.ApplyPatch(new BinaryBufferReader(old.Array!, old.Offset), new BinaryBufferReader(patch, 0), writer);
+            patcher.ApplyPatch(
+                new BinaryBufferReader(old.Array!, old.Offset),
+                new BinaryBufferReader(patch.Array!, patch.Offset),
+                writer);
 
             var result = new byte[writer.Length];
 
             Buffer.BlockCopy(writer.Buffer, 0, result, 0, result.Length);
 
-            return result;
+            return new ArraySegment<byte>(result);
         }
     }
 }
