@@ -35,7 +35,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             switch (type)
             {
                 case NodeType.Object:
-                    VisitObject(length, map, state);
+                    VisitObject(map, state);
                     break;
                 case NodeType.Array:
                     Reader.Position += length;
@@ -51,7 +51,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             }
         }
         
-        private void VisitObject(int length, Dictionary<string, ArraySegment<byte>> map, StringBuilder state)
+        private void VisitObject(Dictionary<string, ArraySegment<byte>> map, StringBuilder state)
         {
             var enumerator = new KeyValuePairsEnumerator(this);
 
