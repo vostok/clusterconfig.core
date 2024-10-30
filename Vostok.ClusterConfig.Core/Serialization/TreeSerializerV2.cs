@@ -56,11 +56,11 @@ namespace Vostok.ClusterConfig.Core.Serialization
             return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding, interningCache).ReadNode(null) : null;
         }
 
-        public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path)
+        public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path, [CanBeNull] string rootName)
         {
             using var pathEnumerator = path.GetEnumerator();
             
-            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding, interningCache).ReadNode(pathEnumerator, null) : null;
+            return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding, interningCache).ReadNode(pathEnumerator, rootName) : null;
         }
 
         public void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)

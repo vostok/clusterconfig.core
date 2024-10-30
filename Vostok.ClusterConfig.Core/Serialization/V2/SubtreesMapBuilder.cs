@@ -59,9 +59,15 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             {
                 var nodeName = enumerator.CurrentKey;
                 var offset = state.Length;
-                var nameLength = nodeName.Length + 1;
-                
-                state.Append('/');
+                var nameLength = nodeName.Length;
+
+                if (state.Length > 0)
+                {
+                    //(deniaa): We don't want to add leading slash
+                    state.Append('/');
+                    nameLength += 1;
+                }
+
                 state.Append(nodeName);
                 
                 VisitNode(map, state);

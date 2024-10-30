@@ -11,6 +11,6 @@ namespace Vostok.ClusterConfig.Core.Serialization
         
         [CanBeNull] ISettingsNode Deserialize([NotNull] BinaryBufferReader tree);
 
-        [CanBeNull] ISettingsNode Deserialize([NotNull] BinaryBufferReader tree, [NotNull] IEnumerable<string> path);
+        [CanBeNull] ISettingsNode Deserialize([NotNull] BinaryBufferReader tree, [NotNull] IEnumerable<string> path, [CanBeNull] string rootName);
     }
 }

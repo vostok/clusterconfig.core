@@ -162,7 +162,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
 
             var reader = new BinaryBufferReader(writer.Buffer, 16);
 
-            var deserializedTree = serializer.Deserialize(reader, path.Segments);
+            var deserializedTree = serializer.Deserialize(reader, path.Segments, null);
 
             deserializedTree.Should().Be(tree.ScopeTo(path.Segments));
         }

@@ -42,7 +42,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
         public ISettingsNode Deserialize(BinaryBufferReader reader)
             => DeserializeAny(null, reader);
 
-        public ISettingsNode Deserialize(BinaryBufferReader reader, IEnumerable<string> path)
+        public ISettingsNode Deserialize(BinaryBufferReader reader, IEnumerable<string> path, string rootName)
         {
             return TryNavigate(reader, path, out var last) ? DeserializeAny(last, reader) : null;
         }

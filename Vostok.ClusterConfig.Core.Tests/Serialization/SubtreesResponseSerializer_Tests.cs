@@ -84,7 +84,10 @@ public class SubtreesResponseSerializer_Tests
             var deserialized = deserializedSubtrees[pair.Key];
             
             deserialized.HasSubtree.Should().Be(original.HasSubtree);
-            deserialized.IsCompressed.Should().Be(original.IsCompressed);
+            if (autoDecompress)
+                deserialized.IsCompressed.Should().BeFalse();
+            else
+                deserialized.IsCompressed.Should().Be(original.IsCompressed);
             deserialized.IsPatch.Should().Be(original.IsPatch);
             deserialized.WasModified.Should().Be(original.WasModified);
             if (original.HasSubtree)

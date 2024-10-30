@@ -14,7 +14,6 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization;
 internal class SubtreesMapBuilder_Tests
 {
     [Test]
-    //TODO tests on settings like this:
     //foo
     //    bar
     //      name = Dale
