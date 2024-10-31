@@ -13,10 +13,12 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization;
 [TestFixture]
 internal class SubtreesMapBuilder_Tests
 {
-    [Test]
-    public void SerializeWithMap_Test()
+    private ISettingsNode tree;
+
+    [SetUp]
+    public void SetUp()
     {
-        var tree = new ObjectNode(new ISettingsNode[]
+        tree = new ObjectNode(new ISettingsNode[]
         {
             new ValueNode("ValueUnderRoot", "AwesomeValue"),
             new ObjectNode("ObjectUnderRoot", new ISettingsNode[]
@@ -43,7 +45,11 @@ internal class SubtreesMapBuilder_Tests
                 })
             }),
         });
-
+    }
+    
+    [Test]
+    public void SerializeWithMap_Test()
+    {
         var writer = new BinaryBufferWriter(64);
 
         var serializer = new TreeSerializerV2();
@@ -55,7 +61,7 @@ internal class SubtreesMapBuilder_Tests
         foreach (var pair in map.OrderByDescending(x => x.Value.Offset))
         {
             var coordinates = pair.Key.Split(new []{"/"}, StringSplitOptions.RemoveEmptyEntries);
-            var node = (ISettingsNode)tree;
+            var node = tree;
             foreach (var coordinate in coordinates)
                 node = node[coordinate];
 
@@ -64,5 +70,19 @@ internal class SubtreesMapBuilder_Tests
 
             deserializedNode.Equals(node).Should().BeTrue();
         }
+    }
+
+    [Test]
+    public void Case_sensitivity_test()
+    {        
+        var writer = new BinaryBufferWriter(64);
+
+        var serializer = new TreeSerializerV2();
+        serializer.Serialize(tree, writer);
+
+        var subtreesMapBuilder = new SubtreesMapBuilder(new BinaryBufferReader(writer.Buffer, 0), Encoding.UTF8, null);
+        var map = subtreesMapBuilder.BuildMap();
+
+        map["ObjectUnderRoot/SomeObject/NestedObject"].Should().BeEquivalentTo(map["objectunderroot/SomeObject/NeStEdObJeCt"]);
     }
 }

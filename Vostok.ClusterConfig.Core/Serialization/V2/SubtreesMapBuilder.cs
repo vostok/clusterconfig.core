@@ -4,6 +4,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Vostok.Commons.Binary;
 using Vostok.Commons.Collections;
+using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Serialization.V2
 {
@@ -16,7 +17,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
         
         public Dictionary<string, ArraySegment<byte>> BuildMap()
         {
-            var map = new Dictionary<string, ArraySegment<byte>>();
+            var map = new Dictionary<string, ArraySegment<byte>>(Comparers.NodeName);
             
             VisitNode(map, new StringBuilder(512));
 
