@@ -14,16 +14,6 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization;
 internal class SubtreesMapBuilder_Tests
 {
     [Test]
-    //foo
-    //    bar
-    //      name = Dale
-    //      name = Laura
-    // => foo/bar/name =>
-    //Dale
-    //Laura
-    // => foo/bar =>
-    //name = Dale
-    //name = Laura
     public void SerializeWithMap_Test()
     {
         var tree = new ObjectNode(new ISettingsNode[]
