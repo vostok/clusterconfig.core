@@ -15,12 +15,12 @@ public class SubtreesRequestSerializer_Tests
     [Test]
     public void Should_serialize_and_deserialize_list()
     {
-        var requests = new List<(string prefix, DateTime? version, bool forceFullUpdate)>
+        var requests = new List<SubtreeRequest>
         {
-            ("/", DateTime.UtcNow, true),
-            ("", DateTime.UtcNow - 2.Minutes(), false),
-            ("/unseen/subtree", null, false),
-            ("/seen/subtree", DateTime.UtcNow - 5.Minutes(), false),
+            new ("/", DateTime.UtcNow, true),
+            new ("", DateTime.UtcNow - 2.Minutes(), false),
+            new ("/unseen/subtree", null, false),
+            new ("/seen/subtree", DateTime.UtcNow - 5.Minutes(), false),
         };
         SerializeDeserializeCheck(requests);
     }
@@ -28,14 +28,14 @@ public class SubtreesRequestSerializer_Tests
     [Test]
     public void Should_serialize_and_deserialize_single_item()
     {
-        var requests = new List<(string prefix, DateTime? version, bool forceFullUpdate)>
+        var requests = new List<SubtreeRequest>
         {
-            ("/some/deep/subtree", DateTime.UtcNow - 5.Minutes(), false),
+            new("/some/deep/subtree", DateTime.UtcNow - 5.Minutes(), false)
         };
         SerializeDeserializeCheck(requests);
     }
 
-    private static void SerializeDeserializeCheck(List<(string prefix, DateTime? version, bool forceFullUpdate)> subtreesRequest)
+    private static void SerializeDeserializeCheck(List<SubtreeRequest> subtreesRequest)
     {
         var writer = new BinaryBufferWriter(1024);
 

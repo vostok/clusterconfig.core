@@ -28,8 +28,8 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
                 writer.Write(subtree.WasModified);
                 if (subtree.WasModified)
                 {
-                    writer.Write(subtree.HasSubtree);
-                    if (subtree.HasSubtree)
+                    writer.Write(subtree.SubtreeExists);
+                    if (subtree.SubtreeExists)
                     {
                         writer.Write(subtree.IsPatch);
                         writer.Write(subtree.IsCompressed);
@@ -48,7 +48,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
                 var path = reader.ReadString(encoding);
 
                 var wasModified = false;
-                var hasSubtree = false;
+                var subtreeExists = false;
                 var isCompressed = false;
                 var isPatch = false;
                 ArraySegment<byte> segment = default;
@@ -56,8 +56,8 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
                 wasModified = reader.ReadBool();
                 if (wasModified)
                 {
-                    hasSubtree = reader.ReadBool();
-                    if (hasSubtree)
+                    subtreeExists = reader.ReadBool();
+                    if (subtreeExists)
                     {
                         isPatch = reader.ReadBool();
                         isCompressed = reader.ReadBool();
@@ -68,7 +68,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
                     }
                 }
 
-                var subtree = new Subtree(wasModified, hasSubtree, isPatch, isCompressed, segment);
+                var subtree = new Subtree(wasModified, subtreeExists, isPatch, isCompressed, segment);
                 if (autoDecompress)
                     subtree.DecompressIfNeeded();
 

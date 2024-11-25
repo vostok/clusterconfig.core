@@ -83,14 +83,14 @@ public class SubtreesResponseSerializer_Tests
             var original = pair.Value;
             var deserialized = deserializedSubtrees[pair.Key];
             
-            deserialized.HasSubtree.Should().Be(original.HasSubtree);
+            deserialized.SubtreeExists.Should().Be(original.SubtreeExists);
             if (autoDecompress)
                 deserialized.IsCompressed.Should().BeFalse();
             else
                 deserialized.IsCompressed.Should().Be(original.IsCompressed);
             deserialized.IsPatch.Should().Be(original.IsPatch);
             deserialized.WasModified.Should().Be(original.WasModified);
-            if (original.HasSubtree)
+            if (original.SubtreeExists)
             {
                 //(deniaa): As we used compressed content in original sometimes, we need to decompress original if autoDecompress if true to check content
                 if (autoDecompress)

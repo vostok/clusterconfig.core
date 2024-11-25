@@ -7,21 +7,21 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
 {
     internal static class SubtreesRequestSerializer
     {
-        public static void Serialize(IBinaryWriter writer, List<(string prefix, DateTime? version, bool forceFullUpdate)> subtreesRequest)
+        public static void Serialize(IBinaryWriter writer, List<SubtreeRequest> subtreesRequest)
         {
             writer.WriteCollection(subtreesRequest,
                 (binaryWriter, subtree) =>
                 {
-                    binaryWriter.WriteWithLength(subtree.prefix.ToString());
-                    binaryWriter.WriteNullable(subtree.version, (bw, time) => bw.Write(time.ToUniversalTime().Ticks));
-                    binaryWriter.Write(subtree.forceFullUpdate);
+                    binaryWriter.WriteWithLength(subtree.Prefix);
+                    binaryWriter.WriteNullable(subtree.Version, (bw, time) => bw.Write(time.ToUniversalTime().Ticks));
+                    binaryWriter.Write(subtree.ForceFullUpdate);
                 });
         }
 
-        public static List<(string prefix, DateTime? version, bool forceFullUpdate)> Deserialize(IBinaryReader deserializer, Encoding encoding)
+        public static List<SubtreeRequest> Deserialize(IBinaryReader deserializer, Encoding encoding)
         {
             var count = deserializer.ReadInt32();
-            var prefixes = new List<(string, DateTime?, bool)>();
+            var prefixes = new List<SubtreeRequest>();
             for (var i = 0; i < count; i++)
             {
                 var prefix = deserializer.ReadString(encoding);
@@ -31,7 +31,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
                     : (DateTime?)null;
                 var forceFullUpdate = deserializer.ReadBool();
                 
-                prefixes.Add((prefix, version, forceFullUpdate));
+                prefixes.Add(new SubtreeRequest(prefix, version, forceFullUpdate));
             }
 
             return prefixes;
