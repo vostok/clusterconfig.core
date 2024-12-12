@@ -1,3 +1,7 @@
+## 0.2.2 (12-12-2024): 
+
+Bump NuGet deps versions
+
 ## 0.2.1 (08-02-2023):
 
 Add options to intern string values after deserialization
