@@ -20,7 +20,7 @@ notests *default:
 
   deps:
     - vostok.devtools
-    - vostok.commons.binary/src
+    - vostok.commons.binary/src@arraysegment_reader
     - vostok.configuration.abstractions
     - vostok.commons.collections/src
 
