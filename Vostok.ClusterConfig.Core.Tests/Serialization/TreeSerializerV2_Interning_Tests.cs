@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
 using Vostok.ClusterConfig.Core.Serialization;
@@ -33,7 +33,7 @@ public class TreeSerializerV2_Interning_Tests
         var writer = new BinaryBufferWriter(64);
         serializer.Serialize(tree, writer);
 
-        var deserializedTree = serializer.Deserialize(new BinaryBufferReader(writer.Buffer.Take(writer.Length).ToArray(), 0));
+        var deserializedTree = serializer.Deserialize(new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer, 0, writer.Length)));
         deserializedTree.Should().Be(tree);
 
         ReferenceEquals(deserializedTree["foo"]["bar"]["baz"].Value, cache.Obtain("00:01:00", x => x)).Should().BeTrue();

@@ -55,7 +55,7 @@ internal class SubtreesMapBuilder_Tests
         var serializer = new TreeSerializerV2();
         serializer.Serialize(tree, writer);
 
-        var subtreesMapBuilder = new SubtreesMapBuilder(new BinaryBufferReader(writer.Buffer, 0), Encoding.UTF8, null);
+        var subtreesMapBuilder = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer)), Encoding.UTF8, null);
         var map = subtreesMapBuilder.BuildMap();
             
         foreach (var pair in map.OrderByDescending(x => x.Value.Offset))
@@ -65,7 +65,7 @@ internal class SubtreesMapBuilder_Tests
             foreach (var coordinate in coordinates)
                 node = node[coordinate];
 
-            var nodeReader = new NodeReader(new BinaryBufferReader(pair.Value.Array, pair.Value.Offset), Encoding.UTF8, null);
+            var nodeReader = new NodeReader(new ArraySegmentReader(pair.Value), Encoding.UTF8, null);
             var deserializedNode = nodeReader.ReadNode(coordinates.LastOrDefault());
 
             deserializedNode.Equals(node).Should().BeTrue();
@@ -80,7 +80,7 @@ internal class SubtreesMapBuilder_Tests
         var serializer = new TreeSerializerV2();
         serializer.Serialize(tree, writer);
 
-        var subtreesMapBuilder = new SubtreesMapBuilder(new BinaryBufferReader(writer.Buffer, 0), Encoding.UTF8, null);
+        var subtreesMapBuilder = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer)), Encoding.UTF8, null);
         var map = subtreesMapBuilder.BuildMap();
 
         map["ObjectUnderRoot/SomeObject/NestedObject"].Should().BeEquivalentTo(map["objectunderroot/SomeObject/NeStEdObJeCt"]);

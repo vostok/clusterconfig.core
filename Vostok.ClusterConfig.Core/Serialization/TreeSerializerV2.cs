@@ -51,27 +51,27 @@ namespace Vostok.ClusterConfig.Core.Serialization
                 new NodeWriter(writer, encoding).WriteNode(tree);
         }
 
-        public ISettingsNode Deserialize(BinaryBufferReader tree)
+        public ISettingsNode Deserialize(ArraySegmentReader tree)
         {
             return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding, interningCache).ReadNode(null) : null;
         }
 
-        public ISettingsNode Deserialize(BinaryBufferReader tree, IEnumerable<string> path, [CanBeNull] string rootName)
+        public ISettingsNode Deserialize(ArraySegmentReader tree, IEnumerable<string> path, [CanBeNull] string rootName)
         {
             using var pathEnumerator = path.GetEnumerator();
             
             return tree.BytesRemaining > 0 ? new NodeReader(tree, encoding, interningCache).ReadNode(pathEnumerator, rootName) : null;
         }
 
-        public void ApplyPatch(BinaryBufferReader settings, BinaryBufferReader patch, IBinaryWriter result)
+        public void ApplyPatch(ArraySegmentReader settings, ArraySegmentReader patch, IBinaryWriter result)
         {
             if (patch.BytesRemaining == 0)
             {
-                result.WriteWithoutLength(settings.Buffer, (int) settings.Position, (int) settings.BytesRemaining);
+                result.WriteWithoutLength(settings.Segment.Array!, settings.Segment.Offset + (int) settings.Position, (int) settings.BytesRemaining);
             }
             else if (settings.BytesRemaining == 0)
             {
-                result.WriteWithoutLength(patch.Buffer, (int) patch.Position, (int) patch.BytesRemaining);
+                result.WriteWithoutLength(patch.Segment.Array!, patch.Segment.Offset + (int) patch.Position, (int) patch.BytesRemaining);
             }
             else
             {

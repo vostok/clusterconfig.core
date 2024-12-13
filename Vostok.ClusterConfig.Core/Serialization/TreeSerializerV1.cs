@@ -39,10 +39,10 @@ namespace Vostok.ClusterConfig.Core.Serialization
         public void Serialize(ISettingsNode tree, IBinaryWriter writer)
             => SerializeAny(tree ?? throw new ArgumentNullException(nameof(tree)), writer);
 
-        public ISettingsNode Deserialize(BinaryBufferReader reader)
+        public ISettingsNode Deserialize(ArraySegmentReader reader)
             => DeserializeAny(null, reader);
 
-        public ISettingsNode Deserialize(BinaryBufferReader reader, IEnumerable<string> path, string rootName)
+        public ISettingsNode Deserialize(ArraySegmentReader reader, IEnumerable<string> path, string rootName)
         {
             return TryNavigate(reader, path, out var last) ? DeserializeAny(last, reader) : null;
         }

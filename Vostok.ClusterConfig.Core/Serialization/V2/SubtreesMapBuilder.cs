@@ -10,7 +10,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
 {
     internal class SubtreesMapBuilder : NodeReader
     {
-        public SubtreesMapBuilder(BinaryBufferReader reader, Encoding encoding, [CanBeNull] RecyclingBoundedCache<string, string> interningCache)
+        public SubtreesMapBuilder(ArraySegmentReader reader, Encoding encoding, [CanBeNull] RecyclingBoundedCache<string, string> interningCache)
             : base(reader, encoding, interningCache)
         {
         }
@@ -31,7 +31,10 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             //(deniaa): Substract 5 as a size of the node header to point to its start.
             //(deniaa): And we have to add 5 back to the subtree length.
             const int headerLength = 5;
-            map[state.ToString()] = new ArraySegment<byte>(Reader.Buffer, (int)Reader.Position - headerLength, length + headerLength);
+            map[state.ToString()] = new ArraySegment<byte>(
+                Reader.Segment.Array!,
+                Reader.Segment.Offset + (int)Reader.Position - headerLength,
+                length + headerLength);
             
             switch (type)
             {
