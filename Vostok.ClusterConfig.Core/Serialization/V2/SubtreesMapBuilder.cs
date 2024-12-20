@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 using Vostok.Commons.Binary;
@@ -10,9 +11,12 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
 {
     internal class SubtreesMapBuilder : NodeReader
     {
+        [CanBeNull] private readonly RecyclingBoundedCache<string, string> interningCache;
+
         public SubtreesMapBuilder(ArraySegmentReader reader, Encoding encoding, [CanBeNull] RecyclingBoundedCache<string, string> interningCache)
-            : base(reader, encoding, interningCache)
+            : base(reader, encoding, null)
         {
+            this.interningCache = interningCache;
         }
         
         public Dictionary<string, ArraySegment<byte>> BuildMap()
@@ -34,7 +38,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             //(deniaa): Substract 5 as a size of the node header to point to its start.
             //(deniaa): And we have to add 5 back to the subtree length.
             const int headerLength = 5;
-            map[state.ToString()] = new ArraySegment<byte>(
+            map[Intern(state.ToString())] = new ArraySegment<byte>(
                 Reader.Segment.Array!,
                 Reader.Segment.Offset + (int)Reader.Position - headerLength,
                 length + headerLength);
@@ -81,6 +85,14 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
                 
                 state.Remove(offset, nameLength);
             }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string Intern(string value)
+        {
+            return interningCache == null || value == null 
+                ? value 
+                : interningCache.Obtain(value, x => x);
         }
     }
 }
