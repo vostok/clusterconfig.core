@@ -85,4 +85,13 @@ internal class SubtreesMapBuilder_Tests
 
         map["ObjectUnderRoot/SomeObject/NestedObject"].Should().BeEquivalentTo(map["objectunderroot/SomeObject/NeStEdObJeCt"]);
     }
+
+    [Test]
+    public void Should_return_empty_map_for_empty_buffer()
+    {
+        var subtreesMapBuilder = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(new byte[0])), Encoding.UTF8, null);
+        var map = subtreesMapBuilder.BuildMap();
+
+        map.Should().HaveCount(0);
+    }
 }

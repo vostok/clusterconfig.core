@@ -17,6 +17,9 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
         
         public Dictionary<string, ArraySegment<byte>> BuildMap()
         {
+            if (Reader.BytesRemaining == 0)
+                return new Dictionary<string, ArraySegment<byte>>(0);
+            
             var map = new Dictionary<string, ArraySegment<byte>>(Comparers.NodeName);
             
             VisitNode(map, new StringBuilder(512));
