@@ -62,7 +62,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
                         isPatch = reader.ReadBool();
                         isCompressed = reader.ReadBool();
                         var arrayLength = reader.ReadInt32();
-                        segment = new ArraySegment<byte>(reader.Segment.Array!, reader.Segment.Offset + (int)reader.Position, arrayLength);
+                        segment = new ArraySegment<byte>(reader.Segment.Array!, (int)reader.ArrayPosition, arrayLength);
 
                         reader.Position += arrayLength;
                     }

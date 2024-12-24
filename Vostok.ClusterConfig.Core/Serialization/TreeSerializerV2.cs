@@ -67,11 +67,11 @@ namespace Vostok.ClusterConfig.Core.Serialization
         {
             if (patch.BytesRemaining == 0)
             {
-                result.WriteWithoutLength(settings.Segment.Array!, settings.Segment.Offset + (int) settings.Position, (int) settings.BytesRemaining);
+                result.WriteWithoutLength(settings.Segment.Array!, (int)settings.ArrayPosition, (int) settings.BytesRemaining);
             }
             else if (settings.BytesRemaining == 0)
             {
-                result.WriteWithoutLength(patch.Segment.Array!, patch.Segment.Offset + (int) patch.Position, (int) patch.BytesRemaining);
+                result.WriteWithoutLength(patch.Segment.Array!, (int)patch.ArrayPosition, (int) patch.BytesRemaining);
             }
             else
             {

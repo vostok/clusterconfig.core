@@ -40,7 +40,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             const int headerLength = 5;
             map[Intern(state.ToString())] = new ArraySegment<byte>(
                 Reader.Segment.Array!,
-                Reader.Segment.Offset + (int)Reader.Position - headerLength,
+                (int)Reader.ArrayPosition - headerLength,
                 length + headerLength);
             
             switch (type)

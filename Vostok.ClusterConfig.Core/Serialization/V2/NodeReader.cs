@@ -50,7 +50,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             ReadHeader(out var type, out var length);
 
             writer.WriteHeader(type, length);
-            writer.Writer.WriteWithoutLength(Reader.Segment.Array!, Reader.Segment.Offset + (int) Reader.Position, length);
+            writer.Writer.WriteWithoutLength(Reader.Segment.Array!, (int) Reader.ArrayPosition, length);
 
             Reader.Position += length;
         }
