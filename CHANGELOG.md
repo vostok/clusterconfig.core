@@ -1,3 +1,7 @@
+## 0.2.3 (31-01-2025):
+
+Use ArraySegmentReader to work correctly in cases when some parts of the buffer do not belong to us.
+
 ## 0.2.2 (12-12-2024): 
 
 Bump NuGet deps versions

@@ -4,7 +4,7 @@ src:
     configuration: None
 
   deps:
-    - vostok.commons.binary/src@arraysegment_reader
+    - vostok.commons.binary/src
     - vostok.configuration.abstractions
     - vostok.commons.collections/src
 
@@ -20,7 +20,7 @@ notests *default:
 
   deps:
     - vostok.devtools
-    - vostok.commons.binary/src@arraysegment_reader
+    - vostok.commons.binary/src
     - vostok.configuration.abstractions
     - vostok.commons.collections/src
 
