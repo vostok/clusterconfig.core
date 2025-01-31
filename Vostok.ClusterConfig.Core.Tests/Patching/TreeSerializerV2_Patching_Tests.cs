@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -80,14 +81,14 @@ namespace Vostok.ClusterConfig.Core.Tests.Patching
 
         private ISettingsNode Deserialize(byte[] tree)
         {
-            return Serializer.Deserialize(new BinaryBufferReader(tree, 0));
+            return Serializer.Deserialize(new ArraySegmentReader(new ArraySegment<byte>(tree)));
         }
         
         private byte[] ApplyPatch(byte[] settings, byte[] patch)
         {
             var writer = new BinaryBufferWriter(1024);
             
-            Serializer.ApplyPatch(new BinaryBufferReader(settings, 0), new BinaryBufferReader(patch, 0), writer);
+            Serializer.ApplyPatch(new ArraySegmentReader(new ArraySegment<byte>(settings)), new ArraySegmentReader(new ArraySegment<byte>(patch)), writer);
 
             return writer.FilledSegment.ToArray();
         }

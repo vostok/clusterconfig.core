@@ -10,10 +10,7 @@ namespace Vostok.ClusterConfig.Core.Utils
         {
             var writer = new BinaryBufferWriter(4096);
 
-            patcher.ApplyPatch(
-                new BinaryBufferReader(old.Array!, old.Offset),
-                new BinaryBufferReader(patch.Array!, patch.Offset),
-                writer);
+            patcher.ApplyPatch(new ArraySegmentReader(old), new ArraySegmentReader(patch), writer);
 
             var result = new byte[writer.Length];
 

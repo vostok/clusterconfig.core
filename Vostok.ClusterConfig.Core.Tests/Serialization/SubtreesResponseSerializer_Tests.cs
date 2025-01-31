@@ -73,7 +73,7 @@ public class SubtreesResponseSerializer_Tests
         
         SubtreesResponseSerializer.Serialize(writer, subtrees);
 
-        var reader = new BinaryBufferReader(writer.Buffer, 0);
+        var reader = new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer));
 
         var deserializedSubtrees = SubtreesResponseSerializer.Deserialize(reader, Encoding.UTF8, autoDecompress);
 

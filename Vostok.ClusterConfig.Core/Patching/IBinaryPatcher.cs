@@ -5,6 +5,6 @@ namespace Vostok.ClusterConfig.Core.Patching
 {
     internal interface IBinaryPatcher
     {
-        void ApplyPatch([NotNull] BinaryBufferReader settings, [NotNull] BinaryBufferReader patch, [NotNull] IBinaryWriter result);
+        void ApplyPatch([NotNull] ArraySegmentReader settings, [NotNull] ArraySegmentReader patch, [NotNull] IBinaryWriter result);
     }
 }

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Vostok.ClusterConfig.Core.Serialization;
 using Vostok.ClusterConfig.Core.Serialization.V2;
 using Vostok.Commons.Binary;
+using Vostok.Commons.Collections;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Tests.Serialization;
@@ -55,7 +56,7 @@ internal class SubtreesMapBuilder_Tests
         var serializer = new TreeSerializerV2();
         serializer.Serialize(tree, writer);
 
-        var subtreesMapBuilder = new SubtreesMapBuilder(new BinaryBufferReader(writer.Buffer, 0), Encoding.UTF8, null);
+        var subtreesMapBuilder = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer)), Encoding.UTF8, null);
         var map = subtreesMapBuilder.BuildMap();
             
         foreach (var pair in map.OrderByDescending(x => x.Value.Offset))
@@ -65,7 +66,7 @@ internal class SubtreesMapBuilder_Tests
             foreach (var coordinate in coordinates)
                 node = node[coordinate];
 
-            var nodeReader = new NodeReader(new BinaryBufferReader(pair.Value.Array, pair.Value.Offset), Encoding.UTF8, null);
+            var nodeReader = new NodeReader(new ArraySegmentReader(pair.Value), Encoding.UTF8, null);
             var deserializedNode = nodeReader.ReadNode(coordinates.LastOrDefault());
 
             deserializedNode.Equals(node).Should().BeTrue();
@@ -80,9 +81,37 @@ internal class SubtreesMapBuilder_Tests
         var serializer = new TreeSerializerV2();
         serializer.Serialize(tree, writer);
 
-        var subtreesMapBuilder = new SubtreesMapBuilder(new BinaryBufferReader(writer.Buffer, 0), Encoding.UTF8, null);
+        var subtreesMapBuilder = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer)), Encoding.UTF8, null);
         var map = subtreesMapBuilder.BuildMap();
 
         map["ObjectUnderRoot/SomeObject/NestedObject"].Should().BeEquivalentTo(map["objectunderroot/SomeObject/NeStEdObJeCt"]);
+    }
+
+    [Test]
+    public void Should_return_empty_map_for_empty_buffer()
+    {
+        var subtreesMapBuilder = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(new byte[0])), Encoding.UTF8, null);
+        var map = subtreesMapBuilder.BuildMap();
+
+        map.Should().HaveCount(0);
+    }
+
+    [Test]
+    public void Should_intern_keys()
+    {
+        var writer = new BinaryBufferWriter(64);
+
+        var serializer = new TreeSerializerV2();
+        serializer.Serialize(tree, writer);
+
+        var cache = new RecyclingBoundedCache<string, string>(1000);
+        var subtreesMapBuilder1 = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer)), Encoding.UTF8, cache);
+        var subtreesMapBuilder2 = new SubtreesMapBuilder(new ArraySegmentReader(new ArraySegment<byte>(writer.Buffer)), Encoding.UTF8, cache);
+        var map1 = subtreesMapBuilder1.BuildMap();
+        var map2 = subtreesMapBuilder2.BuildMap();
+        var keys1 = map1.Keys.OrderBy(x => x).ToArray();
+        var keys2 = map2.Keys.OrderBy(x => x).ToArray();
+        for (var i = 0; i < keys1.Length; i++)
+            keys1[i].Should().BeSameAs(keys2[i]);
     }
 }

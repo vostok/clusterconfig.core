@@ -9,8 +9,8 @@ namespace Vostok.ClusterConfig.Core.Serialization
     {
         void Serialize([NotNull] ISettingsNode tree, [NotNull] IBinaryWriter writer);
         
-        [CanBeNull] ISettingsNode Deserialize([NotNull] BinaryBufferReader tree);
+        [CanBeNull] ISettingsNode Deserialize([NotNull] ArraySegmentReader tree);
 
-        [CanBeNull] ISettingsNode Deserialize([NotNull] BinaryBufferReader tree, [NotNull] IEnumerable<string> path, [CanBeNull] string rootName);
+        [CanBeNull] ISettingsNode Deserialize([NotNull] ArraySegmentReader tree, [NotNull] IEnumerable<string> path, [CanBeNull] string rootName);
     }
 }

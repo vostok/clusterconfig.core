@@ -15,14 +15,14 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
         private readonly Encoding encoding;
         private readonly RecyclingBoundedCache<string, string> interningCache;
 
-        public NodeReader(BinaryBufferReader reader, Encoding encoding, [CanBeNull] RecyclingBoundedCache<string, string> interningCache)
+        public NodeReader(ArraySegmentReader reader, Encoding encoding, [CanBeNull] RecyclingBoundedCache<string, string> interningCache)
         {
             this.encoding = encoding;
             this.interningCache = interningCache;
             Reader = reader;
         }
         
-        public BinaryBufferReader Reader { get; }
+        public ArraySegmentReader Reader { get; }
         
         public void PeekHeader(out NodeType type, out int length)
         {
@@ -50,7 +50,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.V2
             ReadHeader(out var type, out var length);
 
             writer.WriteHeader(type, length);
-            writer.Writer.WriteWithoutLength(Reader.Buffer, (int) Reader.Position, length);
+            writer.Writer.WriteWithoutLength(Reader.Segment.Array!, (int) Reader.ArrayPosition, length);
 
             Reader.Position += length;
         }

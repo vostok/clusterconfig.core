@@ -39,7 +39,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
             }
         }
 
-        public static Dictionary<string, Subtree> Deserialize(BinaryBufferReader reader, Encoding encoding, bool autoDecompress = true)
+        public static Dictionary<string, Subtree> Deserialize(ArraySegmentReader reader, Encoding encoding, bool autoDecompress = true)
         {
             var subtreesCount = reader.ReadInt32();
             var subtrees = new Dictionary<string, Subtree>(subtreesCount);
@@ -62,7 +62,7 @@ namespace Vostok.ClusterConfig.Core.Serialization.SubtreesProtocol
                         isPatch = reader.ReadBool();
                         isCompressed = reader.ReadBool();
                         var arrayLength = reader.ReadInt32();
-                        segment = new ArraySegment<byte>(reader.Buffer, (int)reader.Position, arrayLength);
+                        segment = new ArraySegment<byte>(reader.Segment.Array!, (int)reader.ArrayPosition, arrayLength);
 
                         reader.Position += arrayLength;
                     }
