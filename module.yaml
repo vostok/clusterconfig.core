@@ -17,6 +17,16 @@ notests *default:
 
   install:
     - Vostok.ClusterConfig.Core/bin/Release/netstandard2.0/Vostok.ClusterConfig.Core.dll
+    - groups:
+        - target-framework: "netstandard2.0"
+          libraries:
+            - Vostok.ClusterConfig.Core/bin/Release/netstandard2.0/Vostok.ClusterConfig.Core.dll
+        - target-framework: "net6.0"
+          libraries:
+            - Vostok.ClusterConfig.Core/bin/Release/net6.0/Vostok.ClusterConfig.Core.dll
+        - target-framework: "net8.0"
+          libraries:
+            - Vostok.ClusterConfig.Core/bin/Release/net8.0/Vostok.ClusterConfig.Core.dll
 
   deps:
     - vostok.devtools
@@ -28,6 +38,19 @@ full-build > notests:
   build:
     target: Vostok.ClusterConfig.Core.sln
     configuration: Release
+
+  install:
+    - Vostok.ClusterConfig.Core/bin/Release/netstandard2.0/Vostok.ClusterConfig.Core.dll
+    - groups:
+        - target-framework: "netstandard2.0"
+          libraries:
+            - Vostok.ClusterConfig.Core/bin/Release/netstandard2.0/Vostok.ClusterConfig.Core.dll
+        - target-framework: "net6.0"
+          libraries:
+            - Vostok.ClusterConfig.Core/bin/Release/net6.0/Vostok.ClusterConfig.Core.dll
+        - target-framework: "net8.0"
+          libraries:
+            - Vostok.ClusterConfig.Core/bin/Release/net8.0/Vostok.ClusterConfig.Core.dll
 
   deps:
     - vostok.configuration.sources
